@@ -1,0 +1,128 @@
+/*****************************/
+/********* layout ************/
+/*****************************/
+body.nfl {
+	background-color: dodgerblue;
+}
+
+.inline {
+	display: inline-block;
+}
+
+.hide {
+	display: none;
+}
+
+/*****************************/
+/********* header ************/
+/*****************************/
+
+div.heading-text {
+	color: white;
+	font-family: Helvetica 36px bold;
+}
+
+/*****************************/
+/****** welcome page *********/
+/*****************************/
+
+#newgame {
+	margin: 5rem 0;
+}
+
+
+/*****************************/
+/****** inputs, buttons *********/
+/*****************************/
+.std-button {
+	text-align: center;
+	border-radius: 8px;
+	display: block;
+	background-color: darkred;
+	color: white;
+	padding: 15px;
+	cursor: pointer;
+}
+
+.result-button {
+	width: 75%;
+	margin: auto;
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+	vertical-align: bottom;
+	order: 2;
+}
+
+input[type='text'] {
+	margin-bottom: 0.5rem;
+}
+
+/*****************************/
+/****** preditor page *********/
+/*****************************/
+
+.page-title {
+	margin: 5rem 0 0 0;
+	color: whitesmoke;
+	font-size: 250%;
+}
+
+.page-title h1 {
+	font-weight: 700;
+	color: darkblue;
+	font-size: 250%;
+}
+
+.icon-small-title {
+	width: 10%;
+	margin: 0 10rem;
+}
+
+p.game-number {
+	background-color: black;
+	color: white;
+	font-size: 3rem;
+	margin-bottom: 5rem;
+}
+
+p.season-week-banner {
+	background-color: white;
+	color: black;
+	font-size: 1rem;
+	margin-bottom: 0;
+}
+
+.fixture-row-container {
+	width: 100%;
+	text-align: center;
+	margin-top: 2rem;
+}
+
+.fixture-row-container div {
+	display: inline;
+	vertical-align: middle;
+}
+
+.fixture-row-text {
+	font: 92px verdana bold;
+	color: white;
+	margin: 0 6rem;
+}
+
+div.fixture-content-block.middle {
+	margin: 2rem 4rem;
+}
+
+div.fixture-content-block {
+	display: inline-flex;
+	flex-direction: column;
+	margin-top: 3rem;
+}
+
+.team-badge {
+	max-width: 200px;
+	margin: 0 5rem;
+	height: 200px;
+	order: 1;
+}
+

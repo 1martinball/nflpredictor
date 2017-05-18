@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>NFL Predictor - Welcome</title>
+	<link rel="stylesheet" href="/css/base.css">
+	<link rel="stylesheet" href="/css/foundation.css">
+	<script src="js/jquery-2.1.4.min.js"></script>
+
+	<script src="js/foundation.js"></script>
+	<script src="js/nfl.js"></script>
+</head>
+
+<body class="nfl">
+	<div class="small-12 panel" id="top-panel-container">
+		<div>
+			<div class="text-center page-title">
+				<h1>NFL Predictor</h1>
+				<img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
+				<span class="heading-text"><%=season%> Season</span>
+				<img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
+			</div>
+			<div>
+
+			</div>
+			<div class="row">
+				<div class="small-centered small-6 columns">
+					<select id="week">
+						<option selected disabled>Select game week....</option>
+						<option>Current week</option>
+						<option>1</option>
+						<option>2</option>
+						<option>3</option>
+						<option>4</option>
+					</select>
+				</div>
+			</div>
+
+			
+			<div class="fixture-row-container hide">
+				<p class="season-week-banner">Season <%=season%> - <span class="week-number">Week <%=week%></span></p>
+				<p class="game-number">Game <%=game%></p>
+				<div class="fixture-content-block left">
+					<img class="team-badge away" type="image/svg+xml" src="public/images/teams/<%=awayTeam%>_logo.svg" />
+					<button id="resultBtnRoad" class="result-button std-button away">Road Win</button>
+				</div>
+				<div class="fixture-content-block middle">
+					<span class="fixture-row-text">@</span>
+					<button id="resultBtnTie" class="result-button std-button">Tie</button>
+				</div>
+				<div class="fixture-content-block right">
+					<img class="team-badge home" type="image/svg+xml" src="public/images/teams/<%=homeTeam%>_logo.svg" />
+					<button id="resultBtnHome" class="result-button std-button home">Home Win</button>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>

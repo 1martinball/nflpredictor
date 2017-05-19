@@ -69,3 +69,8 @@ let findBookData = req => {
 		});
 	});
 }
+
+
+var opt = new Option(result[i], result[i]);
+				$(opt).html(result[i]);
+				$('#selectPlayer').append(opt);

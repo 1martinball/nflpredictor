@@ -7,29 +7,31 @@
 	<div class="small-6 columns inline">
 		<form id="welcomeForm" method="get" action="redzone">
 			<div class="row">
-				
+
 				<div class="small-12 columns player-options-container">
 					<input type="text" id="playername" name="playername" placeholder="Enter a player name"></input>
 					<input id="addPlayerBtn" class="small-centered small-6 std-button" value="Add Player" />
 					<p class="small-centered">OR</p>
-					<select id="selectPlayer "class="small-centered small-6">
+					<select id="selectPlayer" name="oldplayer" class="small-centered small-6">
 						<option selected disabled>Select player....</option>
 					</select>
-					<input class="small-centered small-6 std-button hide" type="submit" value="Play" />
 				</div>
-		
+
 				<div class="small-12 columns game-buttons-container hide">
 					<input class="std-button small-12" id="newgame" name="newgame" value="New Game"></input>
 					<input class="std-button small-12" id="oldgame" name="oldgame" value="Existing Game"></input>
 				</div>
 				<div class="small-12 columns oldgame-info-container hide">
 					<div class="small-centered small-12 columns">
-						<select id="existingGameChooser">
+						<select id="selectGame" name="oldGame">
 							<option selected disabled>Select an existing game....</option>
 						</select>
 					</div>
+					<div class="small-12 columns">
+							<input class="small-centered small-6 std-button" name="playAction" formaction="redzoneExistingPlayer" type="submit" value="Play"/>
+					</div>
 				</div>
-				
+
 
 				<div class="small-12 columns newgame-info-container hide">
 					<div class="small-12 columns">
@@ -37,19 +39,17 @@
 					</div>
 
 					<div class="small-12 columns">
-						
+							<input class="small-centered small-6 std-button" name="playAction" type="submit" value="Play" />
 					</div>
 
-					<p class="hide message">
-
-					</p>
 				</div>
 			</div>
+			<p class="hide message"></p>
 		</form>
 		<div>
 			<% if(errorMessage != "") { %>
 				<h3><%=errorMessage%></h3>
-			<% } %>
+				<% } %>
 		</div>
 	</div>
 

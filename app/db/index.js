@@ -12,7 +12,7 @@ const nflGame = new Mongoose.Schema({
 	name: String,
 	playerCount: Number,
 	week: Number,
-	players: [Mongoose.Schema.Types.ObjectId]
+	players: [String]
 });
 
 const player = new Mongoose.Schema({

@@ -107,12 +107,13 @@ let isNameValid = (name, type) => {
 
 let createNewGame = request => {
 	console.log("INFO : Attempting to create new game on DB");
+	var playerName = request.query.playername == "" ? request.query.oldPlayer : request.query.playername;
 	return new Promise((resolve, reject) => {
 		let newGame = new db.gameModel({
 			name: request.query.gamename,
 			playerCount: '1',
 			week: request.query.week,
-			players : [request.query.playername]
+			players : [playerName]
 		});
 
 		newGame.save(error => {
@@ -124,6 +125,44 @@ let createNewGame = request => {
 		});
 	});
 }
+
+let addPlayerToGame = request => {
+	console.log("INFO : Attempting to add player " + request.query.playername + " to " + request.query.oldGame + " on DB");
+	var playerName = request.query.playername == "" ? request.query.oldplayer : request.query.playername;
+	console.log("DEBUG : Player name resolved to - " + playerName);
+	var gameName = request.query.oldGame;
+	return new Promise((resolve, reject) => {
+		findByName(gameName, 'game').then(result => {
+			var pCount = result.playerCount;
+			pCount++;
+			console.log("INFO : Game " + result.name + " found. Now updating with new player " + playerName);
+			db.gameModel.findByIdAndUpdate(result._id,
+				{
+					"$set": {"playerCount": pCount},
+					"$push": {"players": playerName}
+				},
+				{ "new": true, "upsert": false},
+				function(err, data) {
+				if(err){
+					console.log("ERROR: Error returned trying to add player to existing game - " + result.name);
+					reject(err);
+				} else {
+					console.log("INFO : Player " + playerName + " was added successfully to " + data.name);
+					resolve(playerName);
+				}
+			}).catch(err => {
+				console.log("ERROR : Error encountered whilst searching db for " + gameName);
+				console.log(err.message);
+				reject(err);
+			});
+		}).catch(err => {
+			console.log("ERROR : Error encountered whilst searching db for " + gameName);
+			console.log(err.message);
+			reject(err);
+		});
+	});
+}
+
 let createNewPlayer = playername => {
 	console.log("INFO : Attempting to create new player " + playername + " on DB");
 	return new Promise((resolve, reject) => {
@@ -149,9 +188,27 @@ let getPlayers = () => {
 			if (error) {
 				reject(error);
 			} else {
-				console.log("About to resolve existing players");
+				console.log("INFO : About to resolve existing players");
 				console.log("INFO : Players response :" + JSON.stringify(players));
-				resolve(JSON.stringify(players));
+				resolve(players.map((player) => {
+					return player.name;
+				}));
+			}
+		});
+	});
+}
+
+let getGames = () => {
+	return new Promise((resolve, reject) => {
+		db.gameModel.find({}, (error, games) => {
+			if (error) {
+				reject(error);
+			} else {
+				console.log("INFO : About to resolve existing games");
+				console.log("INFO : Games response :" + JSON.stringify(games));
+				resolve(games.map((game) => {
+					return game.name;
+				}));
 			}
 		});
 	});
@@ -225,5 +282,7 @@ module.exports = {
 	createNewGame,
 	createNewPlayer,
 	isNameValid,
-	getPlayers
+	getPlayers,
+	getGames,
+	addPlayerToGame
 }

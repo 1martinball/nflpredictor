@@ -22,8 +22,10 @@ const player = new Mongoose.Schema({
 
 const nflPrediction = new Mongoose.Schema({
 	gamename: String,
-	games: Number,
-	week: Number,
+	playername: String,
+	totalGames: Number,
+	weekNumber: Number,
+	season: String,
 	prediction: String
 });
 

@@ -78,7 +78,7 @@ let findByName = (name, type) => {
 }
 
 let isNameValid = (name, type) => {
-	console.log("Validating " + type + " name - " + name);
+	console.log("INFO : Validating " + type + " name - " + name);
 	return new Promise((resolve, reject) => {
 		findByName(name, type).then(result => {
 			if(result != null){
@@ -95,19 +95,11 @@ let isNameValid = (name, type) => {
 	}); 
 }
 
-//let validatePlayerName = playerName => {
-//	findByGameName(playerName).then(player => {
-//		console.log("INFO : Player was found - validation failed - user will need to enter new player name");
-//		return false;
-//	}).catch(err => {
-//		console.log("INFO : Player " + playerName + " was not found");		
-//		return true;
-//	}); 
-//}
-
 let createNewGame = request => {
+	console.log("DEBUG : Helpers index.js : Request query passed in - " + JSON.stringify(request.query));
 	console.log("INFO : Attempting to create new game on DB");
-	var playerName = request.query.playername == "" ? request.query.oldPlayer : request.query.playername;
+	var playerName = request.query.playername == "" ? request.query.oldplayer : request.query.playername;
+	console.log("DEBUG : Player name resolved to - " + playerName);
 	return new Promise((resolve, reject) => {
 		let newGame = new db.gameModel({
 			name: request.query.gamename,
@@ -182,6 +174,30 @@ let createNewPlayer = playername => {
 	});
 }
 
+let savePrediction = request => {
+	console.log("INFO : helpers.indexjs.savePrediction : Attempting to save prediction " + request.body.playerPrediction + " for " + request.body.player + " on DB");
+	return new Promise((resolve, reject) => {
+		let newPrediction = new db.predictionModel({
+			gamename: request.body.game,
+			playername: request.body.player,
+			totalGames: gameState.totalGames,
+			season: gameState.season,
+			week: gameState.week,
+			prediction: request.body.playerPrediction
+		});
+
+		newPrediction.save(error => {
+			if (error) {
+				reject(new Error("ERROR : helpers.indexjs.savePrediction : Error saving player to repository"));
+			} else {
+				console.log("INFO : helpers.indexjs.savePrediction : Prediction saved successfully");
+				console.log("INFO : helpers.indexjs.savePrediction : About to resolve prediction - " + JSON.stringify(newPrediction));
+				resolve(newPrediction);
+			}
+		});
+	});
+}
+
 let getPlayers = () => {
 	return new Promise((resolve, reject) => {
 		db.playerModel.find({}, (error, players) => {
@@ -214,10 +230,15 @@ let getGames = () => {
 	});
 }
 
-let getFixtures = week => {
+let getGameStateFixtures = () => {
+	return gameState.fixtures;
+}
+
+let getFixtures = (week, season) => {
 	var body = '';
 	gameState.nextGame = 1;
 	gameState.week = week;
+	gameState.season = season;
 	console.log("INFO : About to retrieve fixture data for selected week : " + week);
 
 	return new Promise((resolve, reject) => {
@@ -225,7 +246,7 @@ let getFixtures = week => {
 		if(week == "Current week") {
 			url = "http://api.suredbits.com/nfl/v0/games";
 		} else {
-			url = "http://api.suredbits.com/nfl/v0/games/2016/" + week;
+			url = "http://api.suredbits.com/nfl/v0/games/" + season + "/" + week;
 		}
 		console.log("INFO : Retrieving fixtures from : " + url);
 		http.get(url, (res) => {
@@ -235,7 +256,8 @@ let getFixtures = week => {
 
 			res.on('end', function () {
 				var fixtureResponse = JSON.parse(body);
-				console.log("INFO : There were " + fixtureResponse.length + " games returned in response for week " + gameState.week);
+				console.log("DEBUG : " + this.name + " :Fixture data returned - " + fixtureResponse);
+				console.log("INFO : + " + this.name + " : There were " + fixtureResponse.length + " games returned in response for week " + gameState.week);
 				gameState.fixtures = fixtureResponse;
 				gameState.totalGames = fixtureResponse.length;
 				console.log("INFO : calling helper function getNextGame() to return first fixture")
@@ -253,15 +275,16 @@ let getNextGame = () => {
 		homeTeam : null,
 		awayTeam : null,
 		week: gameState.week,
-		game: '1'
+		game: '1',
+		totalFixtures: gameState.totalGames
 	};
 	
-	console.log("INFO : About to retrieve the next game from gameState fixture model, game number of the next game is " + gameState.nextGame);
-	console.log("INFO : Retrieving game from index " + gameState.gameIndex);
+	console.log("INFO : Helpers.index.js.getNextGame() : About to retrieve the next game from gameState fixture model, game number of the next game is " + gameState.nextGame);
+	console.log("INFO : Helpers.index.js.getNextGame() : Retrieving game from index " + gameState.gameIndex);
 	nextGame.homeTeam = gameState.fixtures[gameState.gameIndex].homeTeam.team;
 	nextGame.awayTeam = gameState.fixtures[gameState.gameIndex].awayTeam.team;
 	nextGame.game = gameState.nextGame;
-	console.log("Next game to be returned to router : " + JSON.stringify(nextGame));
+	console.log("DEBUG : Helpers.index.js.getNextGame() : Next game to be returned to router : " + JSON.stringify(nextGame));
 	incrementGame();
 	return nextGame;
 }
@@ -284,5 +307,7 @@ module.exports = {
 	isNameValid,
 	getPlayers,
 	getGames,
-	addPlayerToGame
+	addPlayerToGame,
+	getGameStateFixtures,
+	savePrediction
 }

@@ -7,6 +7,7 @@
 	<link rel="stylesheet" href="/css/base.css">
 	<link rel="stylesheet" href="/css/foundation.css">
 	<script src="js/jquery-2.1.4.min.js"></script>
+	<script src="bower_components/jquery.redirect/jquery.redirect.js"></script>
 
 	<script src="js/foundation.js"></script>
 	<script src="js/nfl.js"></script>
@@ -40,7 +41,9 @@
 			
 			<div class="fixture-row-container hide">
 				<p class="season-week-banner">Season <%=season%> - <span class="week-number">Week <%=week%></span></p>
-				<p class="game-number">Game <%=game%></p>
+				<p class="game-name-heading">Playing Game - <span id="game-name-id"><%=game%></span></p>
+				<p class="sub-heading-description"><span class="player-name-id"><%=player%></span> make your predictions</p>
+				<p class="fixture-count small-centered">Games remaining  - <span class="js-fixtures-remaining">0</span></p>
 				<div class="fixture-content-block left">
 					<img class="team-badge away" type="image/svg+xml" src="public/images/teams/<%=awayTeam%>_logo.svg" />
 					<button id="resultBtnRoad" class="result-button std-button away">Road Win</button>

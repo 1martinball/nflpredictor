@@ -9,6 +9,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : true}));
 app.set('port', process.env.PORT || 3000);
 app.use(express.static('public'));
+app.use('/bower_components',  express.static(__dirname + '/bower_components'));
+
 app.set('view engine', 'ejs');
 
 app.use(nflpredictor.session);

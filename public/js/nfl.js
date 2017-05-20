@@ -2,8 +2,13 @@
 
 var homeTeam = "No team loaded";
 var awayTeam = "No team loaded";
+var fixturesLeftToPredict = 0;
+var totalGames = 0;
 var weekChosen = null;
+var currentPlayer = "";
+var currentGame = "";
 var playerPredictionString = "";
+var season = "2016";
 
 var teams = {
 	CHI: "Bears",
@@ -38,6 +43,17 @@ var teams = {
 	JAC: 'Jaguars',
 	SD: 'Chargers',
 	CIN: 'Bengals'
+}
+
+function resetGame() {
+	homeTeam = "No team loaded";
+ 	awayTeam = "No team loaded";
+ 	fixturesLeftToPredict = 0;
+	totalGames = 0;
+	weekChosen = null;
+	playerPredictionString = "";
+	currentPlayer = "";
+	currentGame = "";
 }
 
 function getExistingGameNames(){
@@ -81,6 +97,7 @@ $(document).ready(function () {
 	/////////////////////////////////////////////////////////
 
 	if($('#welcomeForm').length){
+		resetGame();
 		populateCurrentPlayers();
 	}
 
@@ -114,16 +131,11 @@ $(document).ready(function () {
 			alert("Please enter a player name");
 		} else{
 			console.log("INFO : Contacting server to validate and save " + $("#playername").val())
-			$.ajax("/addplayer", {
+			$.ajax("/addPlayer", {
 				method: 'POST',
 				data: "playername=" + $("#playername").val(),
-				success: function (data, status, req) {
-					console.log("Ajax add player returned successfully");
-//					$("p.message").html("Player " + data + " was added successfully");
-//					$("p.message").removeClass('hide');
-//					setTimeout(2000, function(){
-//						$("p.message").addClass('hide');
-//					});
+				success: function (result, status, req) {
+					console.log("INFO : nfljs.addPlayerBtn.click : Ajax GET/addPlayer returned successfully - " + result);
 				}
 			});
 		}
@@ -132,7 +144,7 @@ $(document).ready(function () {
 	$('#selectPlayer').change(function(){
 		$('.player-options-container').addClass('hide');
 		$('.game-buttons-container').removeClass('hide');
-		$('#playername').text("");
+		$('#playername').val("");
 	});
 
 
@@ -151,14 +163,17 @@ $(document).ready(function () {
 		console.log("DEBUG : Week Chosen = " + weekChosen);
 		$.ajax({
 			url: '/getFixtures',
-			data: "week=" + weekChosen,
+			data: "week=" + weekChosen + "&season=" + season,
 			success: function (result, status, req) {
-				console.log(result);
+				console.log("DEBUG : nfl.js #week.change : Result returned from GET/getFixtures - " + result);
 				homeTeam = result.homeTeam;
 				awayTeam = result.awayTeam;
+				fixturesLeftToPredict = result.totalFixtures;
+				totalGames = result.totalFixtures;
 				$('.team-badge.home').attr("src", "../images/teams/" + result.homeTeam + "_logo.svg");
 				$('.team-badge.away').attr("src", "../images/teams/" + result.awayTeam + "_logo.svg");
 				$('span.week-number').html("Week " + weekChosen);
+				$('span.js-fixtures-remaining').html(fixturesLeftToPredict);
 
 				$('fixture-row-container').removeClass('hide');
 				$('select#week').addClass('hide');
@@ -178,20 +193,49 @@ $(document).ready(function () {
 			console.log("You have selected a tie");
 			playerPredictionString = playerPredictionString + "T";
 		}
-		$.ajax("/getNextGame", {
+		if(fixturesLeftToPredict > 1){
+			$.ajax("/getNextGame", {
 			method: 'GET',
 			success: function (result, status, req) {
-				console.log("Ajax get next game returned successfully");
-				console.log("In success for getNextGame : game = " + result.game);
-				homeTeam = result.homeTeam;
-				awayTeam = result.awayTeam;
-				$('.team-badge.home').attr("src", "../images/teams/" + result.homeTeam + "_logo.svg");
-				$('.team-badge.away').attr("src", "../images/teams/" + result.awayTeam + "_logo.svg");
-				$('p.game-number').html("Game " + result.game);
-				$('fixture-row-container').removeClass('hide');
-				$('select#week').addClass('hide');
-
+					console.log("INFO : nfljs .result-button.click : GET/getNextGame returned successfully - " + result);
+					homeTeam = result.homeTeam;
+					awayTeam = result.awayTeam;
+					fixturesLeftToPredict--;
+					$('span.js-fixtures-remaining').html(fixturesLeftToPredict);
+					$('.team-badge.home').attr("src", "../images/teams/" + result.homeTeam + "_logo.svg");
+					$('.team-badge.away').attr("src", "../images/teams/" + result.awayTeam + "_logo.svg");
+					$('p.game-number').html("Game " + result.game);
+					$('fixture-row-container').removeClass('hide');
+					$('select#week').addClass('hide');
+				}
+			});
+		} else {
+			currentPlayer = $('#player-name-id').text();
+			currentGame = $('#game-name-id').text();
+			console.log("INFO : nfljs .result-button.click : All fixtures have been predicted - sending predictions to server repository");
+			console.log("DEBUG : Prediction string to send is - " + playerPredictionString);
+			console.log("DEBUG : Player to send is - " + currentPlayer);
+			console.log("DEBUG : Game to send is - " + currentGame);
+			console.log("DEBUG : Week to send is - " + weekChosen);
+			if(playerPredictionString.length == totalGames) {
+				$.ajax("/savePrediction", {
+					method: 'POST',
+					data : { playerPrediction : playerPredictionString, player: currentPlayer, game : currentGame, week: weekChosen},
+					success: function (result, status, req) {
+						console.log("INFO : nfljs .result-button.click : Returned from saving prediction successfully - " + result);
+						console.log("INFO : nfljs .result-button.click : Redirecting to prediction summary page");
+						$.redirect(result.url, { prediction: result.prediction, fixtures: result.fixtures});
+					}
+				});
+			} else {
+				console.log("ERROR : nfljs result-button.click : There was a problem with your predictions......resetting game");
+				resetGame();
+				window.location.replace('http://localhost:3000');
 			}
-		});
+
+
+		}
 	});
+
+
 });

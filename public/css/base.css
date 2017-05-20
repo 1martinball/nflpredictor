@@ -78,11 +78,11 @@ input[type='text'] {
 	margin: 0 10rem;
 }
 
-p.game-number {
+p.game-name-heading {
 	background-color: black;
 	color: white;
 	font-size: 3rem;
-	margin-bottom: 5rem;
+	margin-bottom: 0;
 }
 
 p.season-week-banner {
@@ -90,6 +90,22 @@ p.season-week-banner {
 	color: black;
 	font-size: 1rem;
 	margin-bottom: 0;
+}
+
+p.sub-heading-description {
+	background-color: darkgreen;
+	color: white;
+	font-size: 2rem;
+	margin-bottom: 3rem;
+}
+
+p.fixture-count {
+	background-color: darkblue;
+	border-radius: 1rem;
+	color: darkorange;
+	font-size: 2rem;
+	margin-bottom: 0;
+	width: 25%;
 }
 
 .fixture-row-container {
@@ -126,3 +142,17 @@ div.fixture-content-block {
 	order: 1;
 }
 
+
+.team-badge.small {
+	max-width: 50px;
+	margin: 0 5rem;
+	height: 50px;
+}
+
+.home-row-HPick {
+	border: 2px solid crimson;
+}
+
+.road-row-RPick {
+	border: 2px solid crimson;
+}

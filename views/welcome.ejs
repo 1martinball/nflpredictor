@@ -1,59 +1,81 @@
-<% include header %>
-	<!--html and body opening tags in header -->
+<!DOCTYPE html>
+<html lang="en">
 
-	<div class="small-6 colums inline">
-		<img class="home-icon" src="../images/Nfl_logo.gif" />
-	</div>
-	<div class="small-6 columns inline">
-		<form id="welcomeForm" method="get" action="redzone">
-			<div class="row">
+<head>
+	<meta charset="UTF-8">
+	<title>NFL Predictor - Welcome</title>
+	<link rel="stylesheet" href="/css/base.css">
+	<link rel="stylesheet" href="/css/foundation.css">
+	<script src="js/jquery-2.1.4.min.js"></script>
 
-				<div class="small-12 columns player-options-container">
-					<input type="text" id="playername" name="playername" placeholder="Enter a player name"></input>
-					<input id="addPlayerBtn" class="small-centered small-6 std-button" value="Add Player" />
-					<p class="small-centered">OR</p>
-					<select id="selectPlayer" name="oldplayer" class="small-centered small-6">
-						<option selected disabled>Select player....</option>
-					</select>
-				</div>
+	<script src="js/foundation.js"></script>
+	<script src="js/nfl.js"></script>
+</head>
 
-				<div class="small-12 columns game-buttons-container hide">
-					<input class="std-button small-12" id="newgame" name="newgame" value="New Game"></input>
-					<input class="std-button small-12" id="oldgame" name="oldgame" value="Existing Game"></input>
-				</div>
-				<div class="small-12 columns oldgame-info-container hide">
-					<div class="small-centered small-12 columns">
-						<select id="selectGame" name="oldGame">
-							<option selected disabled>Select an existing game....</option>
-						</select>
-					</div>
-					<div class="small-12 columns">
-							<input class="small-centered small-6 std-button" name="playAction" formaction="redzoneExistingPlayer" type="submit" value="Play"/>
-					</div>
-				</div>
-
-
-				<div class="small-12 columns newgame-info-container hide">
-					<div class="small-12 columns">
-						<input type="text" id="gamename" name="gamename" placeholder="Enter a game name"></input>
-					</div>
-
-					<div class="small-12 columns">
-							<input class="small-centered small-6 std-button" name="playAction" type="submit" value="Play" />
-					</div>
-
+<body class="nfl">
+	<div class="row">
+		<div class="small-12 columns">
+			<div class="row small-12">
+				<div class="small-12 small-centered text-center heading-text">
+					<h1>NFL Predictor | <%= page %></h1>
 				</div>
 			</div>
-			<p class="hide message"></p>
-		</form>
-		<div>
-			<% if(errorMessage != "") { %>
-				<h3><%=errorMessage%></h3>
-				<% } %>
-		</div>
-	</div>
 
-	</div>
+			<div class="small-6 colums inline">
+				<img class="home-icon" src="../images/Nfl_logo.gif" />
+			</div>
+			<div class="small-6 columns inline">
+				<form id="welcomeForm" method="get" action="redzone">
+					<div class="row">
+
+						<div class="small-12 columns player-options-container">
+							<input type="text" id="playername" name="playername" placeholder="Enter a player name" />
+							<input id="addPlayerBtn" class="small-centered small-6 std-button" value="Add Player" />
+							<p class="small-centered">OR</p>
+							<select id="selectPlayer" name="oldplayer" class="small-centered small-6">
+						<option selected disabled>Select player....</option>
+					</select>
+						</div>
+
+						<div class="small-12 columns game-buttons-container hide">
+							<input class="std-button small-12" id="newgame" name="newgame" value="New Game" />
+							<input class="std-button small-12" id="oldgame" name="oldgame" value="Existing Game" />
+						</div>
+						<div class="small-12 columns oldgame-info-container hide">
+							<div class="small-centered small-12 columns">
+								<select id="selectGame" name="oldGame">
+							<option selected disabled>Select an existing game....</option>
+						</select>
+							</div>
+							<div class="small-12 columns">
+								<input class="small-centered small-6 std-button" name="playAction" formaction="redzoneExistingGame" type="submit" value="Play" />
+							</div>
+						</div>
+
+
+						<div class="small-12 columns newgame-info-container hide">
+							<div class="small-12 columns">
+								<input type="text" id="gamename" name="gamename" placeholder="Enter a game name" />
+							</div>
+
+							<div class="small-12 columns">
+								<input class="small-centered small-6 std-button" name="playAction" type="submit" value="Play" />
+							</div>
+
+						</div>
+					</div>
+					<p class="hide message"></p>
+				</form>
+				<div>
+					<% if(errorMessage != "") { %>
+						<h3 class="error">
+							<%=errorMessage%>
+						</h3>
+						<% } %>
+				</div>
+			</div>
+
+		</div>
 
 	</div>
 
@@ -93,7 +115,7 @@
 		</div>
 -->
 
-	</form>
-	</body>
 
-	</html>
+</body>
+
+</html>

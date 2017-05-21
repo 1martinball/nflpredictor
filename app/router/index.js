@@ -215,7 +215,7 @@ module.exports = () => {
 			},
 			'/predictionSummary' : (req, res, next) => {
 				console.log("INFO : routerjs POST/predictionSummary : Routed to - POST/predictionSummary");
-				console.log("INFO : routerjs POST/predictionSummary : About to send back prediction data for redirect - " + req.body.prediction);
+				console.log("INFO : routerjs POST/predictionSummary : About to send back prediction data for redirect - " + JSON.stringify(req.body.prediction));
 				res.render('predictionSummary', {
 					page: "Prediction Summary",
 					prediction: req.body.prediction,

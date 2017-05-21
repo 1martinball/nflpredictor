@@ -197,7 +197,7 @@ $(document).ready(function () {
 			$.ajax("/getNextGame", {
 			method: 'GET',
 			success: function (result, status, req) {
-					console.log("INFO : nfljs .result-button.click : GET/getNextGame returned successfully - " + result);
+					console.log("INFO : nfljs .result-button.click : GET/getNextGame returned successfully - " + JSON.stringify(result));
 					homeTeam = result.homeTeam;
 					awayTeam = result.awayTeam;
 					fixturesLeftToPredict--;
@@ -221,10 +221,12 @@ $(document).ready(function () {
 				$.ajax("/savePrediction", {
 					method: 'POST',
 					data : { playerPrediction : playerPredictionString, player: currentPlayer, game : currentGame, week: weekChosen},
+					dataType: 'json',
 					success: function (result, status, req) {
-						console.log("INFO : nfljs .result-button.click : Returned from saving prediction successfully - " + result);
+						console.log("DEBUG : nfljs .result-button.click : Returned from saving prediction successfully - " + JSON.stringify(result));
+						console.log("DEBUG : nfljs .result-button.click :  - " + JSON.stringify(result.fixtures[0].homeTeam));
 						console.log("INFO : nfljs .result-button.click : Redirecting to prediction summary page");
-						$.redirect(result.url, { prediction: result.prediction, fixtures: result.fixtures});
+						$.redirect(result.url, { prediction: result.prediction, fixtures: JSON.stringify(result.fixtures)});
 					}
 				});
 			} else {
@@ -237,5 +239,20 @@ $(document).ready(function () {
 		}
 	});
 
+
+	/////////////////////////////////////////////////////////
+	//////////// Prediction Summary Page Actions ///////////////////////
+	/////////////////////////////////////////////////////////
+
+//	$('row.main-content-predictions').is(":visible", function() {
+//		console.log(fixtureResponse[0].awayTeam.team);
+//	});
+
+	if($('row.main-content-predictions')) {
+		for(var i=0; i < predictionSummaryfixtures.length; i++){
+			$('img.away' + i).attr('src', 'images/teams/' + predictionSummaryfixtures[i].awayTeam.team + '_logo.svg');
+			$('img.home' + i).attr('src', 'images/teams/' + predictionSummaryfixtures[i].homeTeam.team + '_logo.svg');
+		}
+	}
 
 });

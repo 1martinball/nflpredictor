@@ -7,6 +7,10 @@
 	<link rel="stylesheet" href="/css/base.css">
 	<link rel="stylesheet" href="/css/foundation.css">
 	<script src="js/jquery-2.1.4.min.js"></script>
+	<script type="text/javascript">
+		var response = <%- JSON.stringify(fixtures) %>
+		var predictionSummaryfixtures = JSON.parse(response);
+	</script>
 
 	<script src="js/foundation.js"></script>
 	<script src="js/nfl.js"></script>
@@ -16,30 +20,34 @@
 	<div class="small-12 panel" id="top-panel-container">
 		<div>
 			<div class="text-center page-title">
-				<h1><%=prediction.playername%> -  Predictions</h1>
+				<h2>Player Name : <%=prediction.playername%></h2>
 				<img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
 				<span class="heading-text">Predictions for <%=prediction.season%> Season - Week <%=prediction.week%></span>
 				<img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
 			</div>
-			<div>
+			<form action="/" method="get">
+				<input id="exitBtn" class="small-centered small-6 std-button" type="submit" value="Exit Game" />
+			</form>
 
-			</div>
-			<div class="row">
-				<table class="prediction-table">
+			<div class="row main-content-predictions">
+
+				<table class="prediction-table small-centered">
 					<tr class="prediction-table-header">
 						<th>Road Team</th>
 						<th></th>
 						<th>Home Team</th>
 					</tr>
-					<%  var jsonFixtures = JSON.parse(fixtures);
-						for(var i = 0; i < prediction.totalGames; i++){ %>
-						<tr class="prediction-table-badge road-row-<%=prediction.prediction[i]%>Pick">
-							<img class="team-badge away small" type="image/svg+xml" src="public/images/teams/<% jsonFixtures[i].awayTeam.team %>_logo.svg" />
+					<% for(var i = 0; i < prediction.totalGames; i++){ %>
+						<tr>
+							<td class="road-col small-3 <%=prediction.prediction[i]%>Pick">
+								<img class="team-badge-small away<%=i%>" type="image/svg+xml" src="/images/teams/WAS_logo.svg" />
+							</td>
+							<td class="prediction-table-at small-1">@</td>
+							<td class="home-col small-3 <%=prediction.prediction[i]%>Pick">
+								<img class="team-badge-small home<%=i%>" type="image/svg+xml" src="/images/teams/WAS_logo.svg" />
+							</td>
 						</tr>
-						<tr class="prediction-table-at">@</tr>
-						<tr class="prediction-table-badge home-row-<%=prediction.prediction[i]%>Pick">
-							<img class="team-badge away small" type="image/svg+xml" src="public/images/teams/<% jsonFixtures[i].homeTeam.team %>_logo.svg" />
-						</tr>
+
 					<% } %>
 				</table>
 

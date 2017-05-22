@@ -20,6 +20,7 @@ body.nfl {
 div.heading-text {
 	color: white;
 	font-family: Helvetica 36px bold;
+	margin: 3rem auto;
 }
 
 /*****************************/
@@ -181,4 +182,26 @@ div.fixture-content-block {
 
 .prediction-table>tr>td {
 	text-align: center;
+}
+
+#addPlayerBtn, #selectPlayer {
+	margin-bottom: 2rem;
+}
+
+
+
+.base-color-text {
+	color: darkblue
+}
+
+.base-label {
+	font-size: 24px;
+	color: darkblue;
+}
+
+#exitBtn {
+	float: right;
+	margin: 4rem;
+	position: relative;
+	right: 8rem;
 }

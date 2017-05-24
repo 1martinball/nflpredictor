@@ -127,6 +127,10 @@ let addPlayerToGame = request => {
 		findByName(gameName, 'game').then(result => {
 			var pCount = result.playerCount;
 			pCount++;
+			if (result.players.indexOf(playerName) != -1){
+				console.log("ERROR : Player " + playerName + " is already playing in game " + gamename);
+				reject(new Error("Player " + playerName + " is already playing in game " + gamename));
+			}
 			console.log("INFO : Game " + result.name + " found. Now updating with new player " + playerName);
 			db.gameModel.findByIdAndUpdate(result._id,
 				{
@@ -135,23 +139,18 @@ let addPlayerToGame = request => {
 				},
 				{ "new": true, "upsert": false},
 				function(err, data) {
-				if(err){
-					console.log("ERROR: Error returned trying to add player to existing game - " + result.name);
-					reject(err);
-				} else {
-					console.log("INFO : Player " + playerName + " was added successfully to " + data.name);
-					resolve(playerName);
-				}
+					if(err){
+						console.log("ERROR: Error returned trying to add player to existing game - " + result.name);
+						reject(err);
+					} else {
+						console.log("INFO : Player " + playerName + " was added successfully to " + data.name);
+						resolve(playerName);
+					}
+				})
 			}).catch(err => {
 				console.log("ERROR : Error encountered whilst searching db for " + gameName);
-				console.log(err.message);
 				reject(err);
 			});
-		}).catch(err => {
-			console.log("ERROR : Error encountered whilst searching db for " + gameName);
-			console.log(err.message);
-			reject(err);
-		});
 	});
 }
 
@@ -249,7 +248,13 @@ let getFixtures = (week, season) => {
 			url = "http://api.suredbits.com/nfl/v0/games/" + season + "/" + week;
 		}
 		console.log("INFO : Retrieving fixtures from : " + url);
-		http.get(url, (res) => {
+		var options = {
+			host: "internet-proxy-bov.group.net",
+			port: 81,
+			path: url
+		}
+
+		http.get(options, (res) => {
 			res.on('data', function (chunk) {
 				body += chunk;
 			});

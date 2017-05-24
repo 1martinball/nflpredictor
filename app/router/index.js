@@ -44,7 +44,7 @@ module.exports = () => {
 							res.render('welcome', {
 								page: "Welcome",
 								error: true,
-								errorMessage : "An error occurred. Please try again"
+								errorMessage : "An error returned when creating new game. Please try again"
 							});
 						});
 					} else {
@@ -59,7 +59,7 @@ module.exports = () => {
 					res.render('welcome', {
 						page: "Welcome",
 						error: true,
-						errorMessage : "An error occurred. Please try again"
+						errorMessage : "An error occurred during game creation. Please try again"
 					});
 				});
 			},
@@ -83,11 +83,11 @@ module.exports = () => {
 						homeTeam: null
 					});
 				}).catch( err => {
-					console.log("ERROR : error returned when adding player to game");
+					console.log("ERROR : Error returned when adding player to game - " + err);
 					res.render('welcome', {
 						page: "Welcome",
 						error: true,
-						errorMessage : "An error occurred. Please try again"
+						errorMessage : err.message
 					});
 				});
 			},
@@ -171,7 +171,7 @@ module.exports = () => {
 							res.render('welcome', {
 								page: "Welcome",
 								error: true,
-								errorMessage : "An error occurred. Please try again"
+								errorMessage : "An error occurred creating new player. Please try again"
 							});
 						});
 					} else {
@@ -187,7 +187,7 @@ module.exports = () => {
 					res.render('welcome', {
 						page: "Welcome",
 						error: true,
-						errorMessage : "An error occurred. Please try again"
+						errorMessage : "An error occurred during player creation. Please try again"
 					});
 				}); 
 			},

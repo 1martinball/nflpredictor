@@ -31,6 +31,12 @@ div.heading-text {
 	margin: 5rem 0;
 }
 
+h3.error {
+	color: yellow;
+	padding: 1rem 3rem;
+	text-align: center;
+}
+
 
 /*****************************/
 /****** inputs, buttons *********/

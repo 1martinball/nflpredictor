@@ -98,9 +98,8 @@ let isNameValid = (name, type) => {
 				resolve(true);
 			}
 		}).catch(err => {
-			console.log("ERROR : Error encountered whilst searching db for " + name);
-			console.log(err.message);
-			return false;
+			console.log("ERROR : Error encountered whilst searching db for " + name + " : " + err);
+			reject(err);
 		});
 	}); 
 }
@@ -113,6 +112,8 @@ let createNewGame = request => {
 	return new Promise((resolve, reject) => {
 		let newGame = new db.gameModel({
 			name: request.query.gamename,
+			admin: playerName,
+			status: 'open',
 			playerCount: '1',
 			week: request.query.week,
 			players : [playerName]

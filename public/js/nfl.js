@@ -58,8 +58,7 @@ function resetGame() {
 }
 
 function getExistingGameNames(){
-//	var dummyGames = ["mbgame1", "mbgame2", "mbgame3", "mbgame4", "mbgame5"];
-//	return dummyGames;
+
 	console.log("INFO : Retrieving existing games for dropdown");
 	$.ajax({
 		url: '/getGames',
@@ -137,11 +136,12 @@ $(document).ready(function () {
 				success: function (result, status, req) {
 					if(result == $("#playername").val()) {
 						console.log("INFO : nfljs.addPlayerBtn.click : Ajax GET/addPlayer returned successfully - " + result);
+						$('.message.error').html("");
 						$('.player-options-container').addClass('hide');
 						$('.game-buttons-container').removeClass('hide');
 					} else {
-						$('.message').html(result);
-						$('.message').removeClass('hide');
+						$('.message.error').html(result);
+						$('.message.error').removeClass('hide');
 						setTimeout(function(){
 							$('.message').html("");
 						}, 3000);
@@ -156,6 +156,17 @@ $(document).ready(function () {
 		$('.game-buttons-container').removeClass('hide');
 		$('#playername').val("");
 		$('.error').html("");
+	});
+
+	$('#welcomeForm').submit(function(e){
+		if($('#gamename').is(":visible")) {
+			if($('#gamename').val() == ""){
+				alert("Please enter a game name");
+				e.preventDefault();
+			} else {
+				return;
+			}
+		}
 	});
 
 

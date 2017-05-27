@@ -10,6 +10,8 @@ Mongoose.connection.on('error', error => {
 //Create a schema that defines the structure for storing user data
 const nflGame = new Mongoose.Schema({
 	name: String,
+	admin: String,
+	status: String,
 	playerCount: Number,
 	week: Number,
 	players: [String]

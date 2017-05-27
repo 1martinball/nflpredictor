@@ -27,7 +27,7 @@ module.exports = () => {
 					if(valid) {
 						console.log("INFO : Game validation successful - Saving new game and player data");
 						h.createNewGame(req).then(game => {
-							console.log("DEBUG : About to render Predicto page with data : " + JSON.stringify(game));
+							console.log("DEBUG : About to render Predictor page with data : " + JSON.stringify(game));
 							res.render('predictor', {
 								page: "NFL Predictor | Redzone",
 								season: '2016',
@@ -41,27 +41,31 @@ module.exports = () => {
 								homeTeam: null
 							});
 						}).catch( err => {
-							console.log("ERROR : error returned when creating new game");
+							console.log("ERROR : error returned when creating new game : " + err );
 							res.render('welcome', {
 								page: "Welcome",
 								error: true,
 								errorMessage : "An error returned when creating new game. Please try again"
 							});
 						});
-					} else {
+					}
+				}).catch(err => {
+					if(err instanceof Error){
+						console.log("ERROR : error returned when checking if game is valid : " + err);
 						res.render('welcome', {
 							page: "Welcome",
 							error: true,
-							errorMessage : "That game name is already in use. Please enter a new game name"
+							errorMessage : "An error occurred during game creation. Please try again"
+						});
+					} else {
+						console.log("INFO : Game " + err + " already exists on the DB");
+						res.render('welcome', {
+							page: "Welcome",
+							error: true,
+							errorMessage : "Game " + err + " already exists. Please try again with a different game name"
 						});
 					}
-				}).catch(err => {
-					console.log("ERROR : error returned when checking if game is valid");
-					res.render('welcome', {
-						page: "Welcome",
-						error: true,
-						errorMessage : "An error occurred during game creation. Please try again"
-					});
+
 				});
 			},
 			'/redzoneExistingGame': (req, res, next) => {

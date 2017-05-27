@@ -9,6 +9,7 @@ var currentPlayer = "";
 var currentGame = "";
 var playerPredictionString = "";
 var season = "2016";
+var predictionSummaryFixtures = null;
 
 var teams = {
 	CHI: "Bears",
@@ -57,8 +58,7 @@ function resetGame() {
 }
 
 function getExistingGameNames(){
-//	var dummyGames = ["mbgame1", "mbgame2", "mbgame3", "mbgame4", "mbgame5"];
-//	return dummyGames;
+
 	console.log("INFO : Retrieving existing games for dropdown");
 	$.ajax({
 		url: '/getGames',
@@ -124,8 +124,7 @@ $(document).ready(function () {
 
 	$("#addPlayerBtn").click(function () {
 		console.log("INFO : Add player click function - about to contact server to add this player");
-		$('.player-options-container').addClass('hide');
-		$('.game-buttons-container').removeClass('hide');
+
 		if ($("#playername").val() === "") {
 			console.log("ERROR : No player name entered");
 			alert("Please enter a player name");
@@ -135,7 +134,18 @@ $(document).ready(function () {
 				method: 'POST',
 				data: "playername=" + $("#playername").val(),
 				success: function (result, status, req) {
-					console.log("INFO : nfljs.addPlayerBtn.click : Ajax GET/addPlayer returned successfully - " + result);
+					if(result == $("#playername").val()) {
+						console.log("INFO : nfljs.addPlayerBtn.click : Ajax GET/addPlayer returned successfully - " + result);
+						$('.message.error').html("");
+						$('.player-options-container').addClass('hide');
+						$('.game-buttons-container').removeClass('hide');
+					} else {
+						$('.message.error').html(result);
+						$('.message.error').removeClass('hide');
+						setTimeout(function(){
+							$('.message').html("");
+						}, 3000);
+					}
 				}
 			});
 		}
@@ -145,6 +155,18 @@ $(document).ready(function () {
 		$('.player-options-container').addClass('hide');
 		$('.game-buttons-container').removeClass('hide');
 		$('#playername').val("");
+		$('.error').html("");
+	});
+
+	$('#welcomeForm').submit(function(e){
+		if($('#gamename').is(":visible")) {
+			if($('#gamename').val() == ""){
+				alert("Please enter a game name");
+				e.preventDefault();
+			} else {
+				return;
+			}
+		}
 	});
 
 
@@ -248,10 +270,10 @@ $(document).ready(function () {
 //		console.log(fixtureResponse[0].awayTeam.team);
 //	});
 
-	if($('row.main-content-predictions')) {
-		for(var i=0; i < predictionSummaryfixtures.length; i++){
-			$('img.away' + i).attr('src', 'images/teams/' + predictionSummaryfixtures[i].awayTeam.team + '_logo.svg');
-			$('img.home' + i).attr('src', 'images/teams/' + predictionSummaryfixtures[i].homeTeam.team + '_logo.svg');
+	if(predictionSummaryFixtures) {
+		for(var i=0; i < predictionSummaryFixtures.length; i++){
+			$('img.away' + i).attr('src', 'images/teams/' + predictionSummaryFixtures[i].awayTeam.team + '_logo.svg');
+			$('img.home' + i).attr('src', 'images/teams/' + predictionSummaryFixtures[i].homeTeam.team + '_logo.svg');
 		}
 	}
 

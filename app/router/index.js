@@ -11,6 +11,7 @@ module.exports = () => {
 				console.log("INFO : Routing to - Welcome page at GET/");
 				console.log("INFO : GET request with parameters : " + req.query);
 				console.log("INFO : Rendering page : welcome.ejs");
+				h.resetGame();
 				res.render('welcome', {
 					page: "Welcome",
 					error: false,
@@ -168,27 +169,27 @@ module.exports = () => {
 							res.send(player.name);
 						}).catch(err => {
 							console.log("ERROR : error returned when creating new player");
+							h.resetGame();
 							res.render('welcome', {
 								page: "Welcome",
 								error: true,
 								errorMessage : "An error occurred creating new player. Please try again"
 							});
 						});
-					} else {
-						console.log("INFO : Player validation failed - name already in use - try again");
-						res.render('welcome', {
-							page: "Welcome",
-							error: true,
-							errorMessage : req.body.playername + " is already in use. Please try again"
-						});
 					}
-				}).catch(err => {
-					console.log("ERROR : error returned when checking if player is valid");
-					res.render('welcome', {
-						page: "Welcome",
-						error: true,
-						errorMessage : "An error occurred during player creation. Please try again"
-					});
+						//else {
+//						console.log("INFO : Player validation failed - name already in use - try again");
+//						h.resetGame();
+//						res.render('welcome', {
+//							page: "Welcome",
+//							error: true,
+//							errorMessage : req.body.playername + " is already in use. Please try again"
+//						});
+//					}
+				}).catch(name => {
+					console.log("INFO : Problem found when checking if " + name + " is valid");
+					h.resetGame();
+					res.send("That player already exists. Please try again");
 				}); 
 			},
 			'/savePrediction' : (req, res, next) => {

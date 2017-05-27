@@ -77,13 +77,23 @@ let findByName = (name, type) => {
 	});
 }
 
+let resetGame = () => {
+	gameState = {
+		totalGames: 0,
+		nextGame: 1,
+		gameIndex: 0,
+		week: 1,
+		fixtures: null
+	}
+}
+
 let isNameValid = (name, type) => {
 	console.log("INFO : Validating " + type + " name - " + name);
 	return new Promise((resolve, reject) => {
 		findByName(name, type).then(result => {
 			if(result != null){
 				console.log("INFO : " + result.name + "  was found - validation failed - user will need to enter new " + type + " name");
-				reject(false);
+				reject(result.name);
 			} else {
 				resolve(true);
 			}
@@ -128,29 +138,30 @@ let addPlayerToGame = request => {
 			var pCount = result.playerCount;
 			pCount++;
 			if (result.players.indexOf(playerName) != -1){
-				console.log("ERROR : Player " + playerName + " is already playing in game " + gamename);
-				reject(new Error("Player " + playerName + " is already playing in game " + gamename));
+				console.log("ERROR : Player " + playerName + " is already playing in game " + gameName);
+				reject(new Error("Player " + playerName + " is already playing in game " + gameName));
+			} else {
+				console.log("INFO : Game " + result.name + " found. Now updating with new player " + playerName);
+				db.gameModel.findByIdAndUpdate(result._id,
+					{
+						"$set": {"playerCount": pCount},
+						"$push": {"players": playerName}
+					},
+					{ "new": true, "upsert": false},
+					function(err, data) {
+						if(err){
+							console.log("ERROR: Error returned trying to add player to existing game - " + result.name);
+							reject(err);
+						} else {
+							console.log("INFO : Player " + playerName + " was added successfully to " + data.name);
+							resolve(playerName);
+						}
+					})
 			}
-			console.log("INFO : Game " + result.name + " found. Now updating with new player " + playerName);
-			db.gameModel.findByIdAndUpdate(result._id,
-				{
-					"$set": {"playerCount": pCount},
-					"$push": {"players": playerName}
-				},
-				{ "new": true, "upsert": false},
-				function(err, data) {
-					if(err){
-						console.log("ERROR: Error returned trying to add player to existing game - " + result.name);
-						reject(err);
-					} else {
-						console.log("INFO : Player " + playerName + " was added successfully to " + data.name);
-						resolve(playerName);
-					}
-				})
-			}).catch(err => {
-				console.log("ERROR : Error encountered whilst searching db for " + gameName);
-				reject(err);
-			});
+		}).catch(err => {
+			console.log("ERROR : Error encountered whilst searching db for " + gameName);
+			reject(err);
+		});
 	});
 }
 
@@ -187,7 +198,8 @@ let savePrediction = request => {
 
 		newPrediction.save(error => {
 			if (error) {
-				reject(new Error("ERROR : helpers.indexjs.savePrediction : Error saving player to repository"));
+				resetGame();
+				reject(new Error("ERROR : helpers.indexjs.savePrediction : Error saving prediction to repository"));
 			} else {
 				console.log("INFO : helpers.indexjs.savePrediction : Prediction saved successfully");
 				console.log("INFO : helpers.indexjs.savePrediction : About to resolve prediction - " + JSON.stringify(newPrediction));
@@ -248,13 +260,13 @@ let getFixtures = (week, season) => {
 			url = "http://api.suredbits.com/nfl/v0/games/" + season + "/" + week;
 		}
 		console.log("INFO : Retrieving fixtures from : " + url);
-		var options = {
-			host: "internet-proxy-bov.group.net",
-			port: 81,
-			path: url
-		}
+//		var options = {
+//			host: "internet-proxy-bov.group.net",
+//			port: 81,
+//			path: url
+//		}
 
-		http.get(options, (res) => {
+		http.get(url, (res) => {
 			res.on('data', function (chunk) {
 				body += chunk;
 			});
@@ -268,6 +280,7 @@ let getFixtures = (week, season) => {
 				console.log("INFO : calling helper function getNextGame() to return first fixture")
 				resolve(getNextGame()); 
 			}).on('error', (e) => {
+				resetGame();
 				console.log(`ERROR : Error whilst retrieving fixture data : ${e.message}`);
 				reject(e);
 			});
@@ -314,5 +327,6 @@ module.exports = {
 	getGames,
 	addPlayerToGame,
 	getGameStateFixtures,
-	savePrediction
+	savePrediction,
+	resetGame
 }

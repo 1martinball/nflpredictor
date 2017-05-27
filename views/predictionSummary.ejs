@@ -7,13 +7,12 @@
 	<link rel="stylesheet" href="/css/base.css">
 	<link rel="stylesheet" href="/css/foundation.css">
 	<script src="js/jquery-2.1.4.min.js"></script>
-	<script type="text/javascript">
-		var response = <%- JSON.stringify(fixtures) %>
-		var predictionSummaryfixtures = JSON.parse(response);
-	</script>
-
 	<script src="js/foundation.js"></script>
 	<script src="js/nfl.js"></script>
+	<script type="text/javascript">
+		var response = <%- JSON.stringify(fixtures) %>
+		predictionSummaryFixtures = JSON.parse(response);
+	</script>
 </head>
 
 <body class="nfl">

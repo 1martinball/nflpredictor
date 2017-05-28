@@ -62,6 +62,7 @@ function getExistingGameNames(){
 	console.log("INFO : Retrieving existing games for dropdown");
 	$.ajax({
 		url: '/getGames',
+		data: "playername=" + currentPlayer,
 		success: function (result, status, req) {
 			console.log("INFO - successfully returned from getGames call with result - " + result);
 			console.log("DEBUG : Returned " + result.length + " games");
@@ -136,6 +137,7 @@ $(document).ready(function () {
 				success: function (result, status, req) {
 					if(result == $("#playername").val()) {
 						console.log("INFO : nfljs.addPlayerBtn.click : Ajax GET/addPlayer returned successfully - " + result);
+						currentPlayer = result;
 						$('.message.error').html("");
 						$('.player-options-container').addClass('hide');
 						$('.game-buttons-container').removeClass('hide');
@@ -152,6 +154,7 @@ $(document).ready(function () {
 	});
 
 	$('#selectPlayer').change(function(){
+		currentPlayer = $(this).val();
 		$('.player-options-container').addClass('hide');
 		$('.game-buttons-container').removeClass('hide');
 		$('#playername').val("");

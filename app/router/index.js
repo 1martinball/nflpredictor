@@ -111,9 +111,9 @@ module.exports = () => {
 			},
 			'/getGames': (req, res, next) => {
 				console.log("INFO : Routing to : Game look up with request GET/getGames");
-				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
+				console.log("INFO : GET request with parameters : " + req.query);
 				console.log("INFO : Calling helper function getGames()");
-				h.getGames().then(games => {
+				h.getGames(req.query.playername).then(games => {
 					console.log("INFO : Helper function getGames() returned to router with : " + games);
 					console.log("INFO : Sending games data");
 					res.send(games);

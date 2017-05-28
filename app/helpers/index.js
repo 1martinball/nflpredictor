@@ -226,9 +226,9 @@ let getPlayers = () => {
 	});
 }
 
-let getGames = () => {
+let getGames = (playername) => {
 	return new Promise((resolve, reject) => {
-		db.gameModel.find({}, (error, games) => {
+		db.gameModel.find({status: 'open', players: {"$ne": playername}}, (error, games) => {
 			if (error) {
 				reject(error);
 			} else {

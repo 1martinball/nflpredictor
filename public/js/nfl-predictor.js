@@ -12,7 +12,7 @@ let bindChangeEvents = function() {
     $("#week").change(function () {
         $(".fixture-row-container").removeClass('hide');
         $(".fixture-row-container").slideDown(300);
-        console.log("INFO : In nfl.js about to do ajax call to retrieve fixtures");
+        console.log("INFO : #week.change - About to do ajax call to retrieve fixtures");
         weekChosen = $('#week').find(":selected").text();
         season = $('#season').find(":selected").text();
         console.log("DEBUG : Week Chosen = " + weekChosen);
@@ -54,7 +54,7 @@ let bindClickEvents = function() {
         } else {
             currentPlayer = $('#player-name-id').text();
             currentGame = $('#game-name-id').text();
-            console.log("INFO : nfljs .result-button.click : All fixtures have been predicted - sending predictions to server repository");
+            console.log("INFO : result-button.click : All fixtures have been predicted - sending predictions to server repository");
             console.log("DEBUG : Prediction string to send is - " + playerPredictionString);
             console.log("DEBUG : Player to send is - " + currentPlayer);
             console.log("DEBUG : Game to send is - " + currentGame);
@@ -65,14 +65,14 @@ let bindClickEvents = function() {
                     data : { playerPrediction : playerPredictionString, player: currentPlayer, game : currentGame, week: weekChosen},
                     dataType: 'json',
                     success: function (result, status, req) {
-                        console.log("DEBUG : nfljs .result-button.click : Returned from saving prediction successfully - " + JSON.stringify(result));
-                        console.log("DEBUG : nfljs .result-button.click :  - " + JSON.stringify(result.fixtures[0].homeTeam));
-                        console.log("INFO : nfljs .result-button.click : Redirecting to prediction summary page");
+                        console.log("DEBUG : result-button.click : Returned from saving prediction successfully - " + JSON.stringify(result));
+                        console.log("DEBUG : result-button.click :  - " + JSON.stringify(result.fixtures[0].homeTeam));
+                        console.log("INFO : result-button.click : Redirecting to prediction summary page");
                         $.redirect(result.url, { prediction: result.prediction, fixtures: JSON.stringify(result.fixtures)});
                     }
                 });
             } else {
-                console.log("ERROR : nfljs result-button.click : There was a problem with your predictions......resetting game");
+                console.log("ERROR : result-button.click : There was a problem with your predictions......resetting game");
                 resetGame();
                 window.location.replace('http://localhost:3000');
             }

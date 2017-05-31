@@ -6,7 +6,6 @@
 /////////////////////////////////////////////////////////
 
 resetGame();
-populateCurrentPlayers();
 populateBaseGameInfo();
 
 let bindClickEvents = function(){

@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-	<meta charset="UTF-8">
-	<title>NFL Predictor</title>
-	<link rel="stylesheet" href="/css/base.css">
-	<link rel="stylesheet" href="/css/foundation.css">
-	<script src="bower_components/jquery.redirect/jquery.redirect.js"></script>
-	<script src="js/jquery-2.1.4.min.js"></script>
-	<script src="js/foundation.js"></script>
-	<script src="js/nfl-global.js"></script>
-	<script src="js/nfl-summary.js"></script>
-	<script type="text/javascript">
-		var response = <%- JSON.stringify(fixtures) %>;
-			if(response) {
+    <head>
+        <meta charset="UTF-8">
+        <title>NFL Predictor</title>
+        <link rel="stylesheet" href="/css/base.css">
+        <link rel="stylesheet" href="/css/foundation.css">
+        <script src="bower_components/jquery.redirect/jquery.redirect.js"></script>
+        <script src="js/jquery-2.1.4.min.js"></script>
+        <script src="js/foundation.js"></script>
+        <script src="js/nfl-global.js"></script>
+        <script src="js/nfl-summary.js"></script>
+        <script type="text/javascript">
+            var response = <%- JSON.stringify(fixtures) %>;
+            if (response) {
                 predictionSummaryFixtures = JSON.parse(response);
-			}
+            }
 
-	</script>
-</head>
+        </script>
+    </head>
 
 <body class="nfl">
 	<div class="small-12 panel" id="top-panel-container">
@@ -29,34 +29,41 @@
 				<span class="heading-text">Predictions for <%=prediction.season%> Season - Week <%=prediction.week%></span>
 				<img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
 			</div>
-			<form action="/">
-				<input id="exitBtn" class="small-centered small-2 std-button" type="submit" value="Exit Game" />
+			<form id="summaryForm" action="/">
+				<input id="saveAndExitBtn" class="small-centered small-2 std-button" type="submit" value="Save and Exit" />
+                <input id="predictionString" type="hidden" value="<%= prediction.prediction %>" />
+                <input id="predictionId" type="hidden" value="<%= prediction._id %>" />
 			</form>
 
-			<div class="row main-content-predictions">
+                <div class="row main-content-predictions">
 
-				<table class="prediction-table small-centered">
-					<tr class="prediction-table-header">
-						<th>Road Team</th>
-						<th></th>
-						<th>Home Team</th>
-					</tr>
-					<% for(var i = 0; i < prediction.totalGames; i++){ %>
-						<tr>
-							<td class="road-col small-3 <%=prediction.prediction[i]%>Pick">
-								<img class="team-badge-small away<%=i%>" type="image/svg+xml" src="/images/teams/WAS_logo.svg" />
-							</td>
-							<td class="prediction-table-at small-1">@</td>
-							<td class="home-col small-3 <%=prediction.prediction[i]%>Pick">
-								<img class="team-badge-small home<%=i%>" type="image/svg+xml" src="/images/teams/WAS_logo.svg" />
-							</td>
-						</tr>
+                    <table class="prediction-table small-centered">
+                        <tr class="prediction-table-header">
+                            <th>Road Team</th>
+                            <th></th>
+                            <th>Home Team</th>
+                        </tr>
+                        <% for(var i = 0; i < prediction.totalGames; i++){ %>
+                        <tr>
+                            <td id="R-<%= i %>" class="road-col small-3  <%= prediction.prediction[i] %>Pick">
+                                <img class="team-badge-small away<%= i %>" type="image/svg+xml"
+                                     src="/images/teams/WAS_logo.svg"/>
+                            </td>
+                            <td id="T-<%= i %>"
+                                class="prediction-table-at small-1 <%= prediction.prediction[i] %>Pick">@
+                            </td>
+                            <td id="H-<%= i %>" class="home-col small-3 <%= prediction.prediction[i] %>Pick">
+                                <img class="team-badge-small home<%= i %>" type="image/svg+xml"
+                                     src="/images/teams/WAS_logo.svg"/>
+                            </td>
+                        </tr>
 
-					<% } %>
-				</table>
+                        <% } %>
+                    </table>
 
-			</div>
-		</div>
+                </div>
+            </div>
 
-	</div>
-</body>
+        </div>
+    </body>
+</html>

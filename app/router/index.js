@@ -9,7 +9,7 @@ module.exports = () => {
 		'get': {
 			'/': (req, res, next) => {
 				console.log("INFO : Routing to - Welcome page at GET/");
-				console.log("INFO : GET request with parameters : " + req.query);
+				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
 				console.log("INFO : Rendering page : welcome.ejs");
 				h.resetGame();
 				res.render('welcome', {
@@ -33,7 +33,7 @@ module.exports = () => {
 			},
 			'/redzone': (req, res, next) => {
 				console.log("INFO : Routing to - Predictor at GET/redzone");
-				console.log("INFO : GET request with parameters : " + req.query);
+				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
 				console.log("INFO : Rendering page : predictor.ejs");
 				console.log("INFO : Checking DB for game names")
 				h.isNameValid(req.query.gamename, 'game').then(valid => {
@@ -84,7 +84,7 @@ module.exports = () => {
 			},
 			'/redzoneExistingGame': (req, res, next) => {
 				console.log("INFO : Routing to - Predictor at GET/redzoneExistingGame");
-				console.log("INFO : GET request with parameters : " + req.query);
+				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
 				console.log("INFO : Rendering page : predictor.ejs");
 				console.log("INFO : Existing game validation not required - Need to update game with player data");
 				h.addPlayerToGame(req).then(player => {
@@ -126,7 +126,7 @@ module.exports = () => {
 			},
 			'/getGames': (req, res, next) => {
 				console.log("INFO : Routing to : Game look up with request GET/getGames");
-				console.log("INFO : GET request with parameters : " + req.query);
+				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
 				console.log("INFO : Calling helper function getGames()");
 				h.getGames(req.query.playername).then(games => {
 					console.log("INFO : Helper function getGames() returned to router with : " + JSON.stringify(games));
@@ -139,7 +139,7 @@ module.exports = () => {
 			},
 			'/getFixtures': (req, res, next) => {
 				console.log("INFO : Routing to : Fixture look up with request GET/getFixtures");
-				console.log("INFO : GET request with parameters : " + req.query);
+				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
 				console.log("INFO : Calling helper function getFixtures()");
 				h.setGameWeekAndSeason(req.query.week, req.query.season);
 				h.getFixtures(req.query.week, req.query.season).then(teams => {
@@ -162,7 +162,7 @@ module.exports = () => {
 			},
 			'/getNextGame': (req, res, next) => {
 				console.log("INFO : Routing to : Next game look up with request GET/getNextGame");
-				console.log("INFO : GET request with parameters : " + req.query);
+				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
 				console.log("INFO : Calling helper function getNextGame()");
 				var next = h.getNextGame();
 				console.log("INFO : Helper function getNextGame() returned : " + JSON.stringify(next));					
@@ -214,25 +214,43 @@ module.exports = () => {
 			},
 			'/savePrediction' : (req, res, next) => {
 				console.log("INFO : routerjs POST/savePrediction : Routed to - POST/savePrediction");
-				console.log("INFO : routerjs POST/savePrediction : POST request with parameters : " + (req.body));
-				console.log("INFO : routerjs POST/savePrediction : About to save the prediction - " + req.body.playerPrediction);
-				var fixtures = h.getGameStateFixtures();
-				console.log("DEBUG : routerjs POST/savePrediction : Fixtures to send - " + JSON.stringify(fixtures));
-				h.savePrediction(req).then(prediction => {
-				console.log("INFO : routerjs POST/savePrediction : About to send back prediction data for redirect - " + prediction.prediction);
-					res.send({
-						url: "/predictionSummary",
-						prediction: prediction,
-						fixtures: fixtures
-					});
-				}).catch(err => {
-					console.log("ERROR : routerjs POST/savePrediction : " + err);
-					res.render('welcome', {
-						page: "Welcome",
-						error: true,
-						errorMessage : "Sorry " + req.body.player + ". There was an error saving your prediction. Please retry - game has been reset"
-					});
-				});
+				console.log("INFO : routerjs POST/savePrediction : POST request with parameters : " + JSON.stringify(req.body));
+				if(req.body.update === "true"){
+                    console.log("INFO : routerjs POST/savePrediction : About to update the prediction with id - " + req.body.predictionId);
+                    h.updatePrediction(req).then(recordsChanged => {
+                        console.log("INFO : routerjs POST/savePrediction : Successfully updated player prediction - " + recordsChanged + " records amended");
+                        res.send({
+                            prediction: req.body.playerPrediction,
+                            recordsUpdated: recordsChanged
+                        });
+                    }).catch(err => {
+                        console.log("ERROR : routerjs POST/savePrediction : " + err);
+                        res.render('welcome', {
+                            page: "Welcome",
+                            error: true,
+                            errorMessage : "There was an error updating your prediction. Please retry - game has been reset"
+                        });
+                    });
+				} else {
+                    console.log("INFO : routerjs POST/savePrediction : About to save the prediction - " + req.body.playerPrediction);
+                    var fixtures = h.getGameStateFixtures();
+                    console.log("DEBUG : routerjs POST/savePrediction : Fixtures to send - " + JSON.stringify(fixtures));
+                    h.savePrediction(req).then(prediction => {
+                        console.log("INFO : routerjs POST/savePrediction : About to send back prediction data for redirect - " + prediction.prediction);
+                        res.send({
+                            url: "/predictionSummary",
+                            prediction: prediction,
+                            fixtures: fixtures
+                        });
+                    }).catch(err => {
+                        console.log("ERROR : routerjs POST/savePrediction : " + err);
+                        res.render('welcome', {
+                            page: "Welcome",
+                            error: true,
+                            errorMessage : "Sorry " + req.body.player + ". There was an error saving your prediction. Please retry - game has been reset"
+                        });
+                    });
+				}
 			},
 			'/predictionSummary' : (req, res, next) => {
 				console.log("INFO : routerjs POST/predictionSummary : Routed to - POST/predictionSummary");

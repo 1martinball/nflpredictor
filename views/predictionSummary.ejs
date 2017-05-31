@@ -29,8 +29,10 @@
 				<span class="heading-text">Predictions for <%=prediction.season%> Season - Week <%=prediction.week%></span>
 				<img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
 			</div>
-			<form action="/">
-				<input id="exitBtn" class="small-centered small-2 std-button" type="submit" value="Exit Game" />
+			<form id="summaryForm" action="/">
+				<input id="saveAndExitBtn" class="small-centered small-2 std-button" type="submit" value="Save and Exit" />
+                <input id="predictionString" type="hidden" value="<%= prediction.prediction %>" />
+                <input id="predictionId" type="hidden" value="<%= prediction._id %>" />
 			</form>
 
                 <div class="row main-content-predictions">
@@ -63,6 +65,5 @@
             </div>
 
         </div>
-        <input id="predictionString" type="hidden" value="<%= prediction.prediction %>" />
     </body>
 </html>

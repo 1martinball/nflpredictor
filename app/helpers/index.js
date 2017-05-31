@@ -232,6 +232,22 @@ let savePrediction = request => {
 	});
 }
 
+let updatePrediction = request => {
+    console.log("INFO : helpers.indexjs.updatePrediction : Attempting to update prediction to " + request.body.playerPrediction + " for id - " + request.body.predictionId + " on DB");
+
+    return new Promise((resolve, reject) => {
+        db.predictionModel.update({_id: request.body.predictionId},{prediction: request.body.playerPrediction}, (error, affected) => {
+            if (error) {
+                reject(error);
+            } else {
+                console.log("INFO : Successfully updated prediction with id : " + request.body.predictionId);
+                resolve(affected);
+            }
+        });
+    });
+
+}
+
 let getInfo = () => {
     var body = '';
     return new Promise((resolve, reject) => {
@@ -380,5 +396,6 @@ module.exports = {
 	savePrediction,
 	resetGame,
     setGameWeekAndSeason,
-	getInfo
+	getInfo,
+	updatePrediction
 }

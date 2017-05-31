@@ -216,7 +216,7 @@ td.prediction-table-at.HPick, td.prediction-table-at.RPick, td.home-col.RPick, t
 	color: darkblue;
 }
 
-#exitBtn {
+#saveAndExitBtn {
 	float: right;
 	margin: 4rem;
 	position: relative;

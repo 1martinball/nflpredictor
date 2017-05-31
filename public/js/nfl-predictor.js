@@ -62,7 +62,7 @@ let bindClickEvents = function() {
             if(playerPredictionString.length == totalGames) {
                 $.ajax("/savePrediction", {
                     method: 'POST',
-                    data : { playerPrediction : playerPredictionString, player: currentPlayer, game : currentGame, week: weekChosen},
+                    data : { playerPrediction : playerPredictionString, player: currentPlayer, game : currentGame, week: weekChosen, update: false},
                     dataType: 'json',
                     success: function (result, status, req) {
                         console.log("DEBUG : result-button.click : Returned from saving prediction successfully - " + JSON.stringify(result));

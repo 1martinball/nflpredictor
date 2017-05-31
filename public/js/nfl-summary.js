@@ -30,9 +30,34 @@ let bindClickEvents = function() {
 
 }
 
+let bindSubmitEvent = function(){
+
+    $('#summaryForm').submit(function(e){
+
+        $.ajax("/savePrediction", {
+            method: 'POST',
+            data : { playerPrediction : $('#predictionString').val(), predictionId: $('#predictionId').val() , update: true},
+            dataType: 'json',
+            success: function (result, status, req) {
+                console.log("DEBUG : summaruSubmit : Returned from updating prediction successfully - " + JSON.stringify(result));
+                console.log("INFO : Exiting to home page");
+                if(result.recordsUpdated === 1){
+                    return;
+                }
+            },
+            error: function(){
+                console.log("INFO : Error updating prediction to DB");
+                e.preventDefault();
+            }
+        });
+
+    });
+}
+
 $(document).ready(function () {
 
     bindClickEvents();
+    bindSubmitEvent();
 
     if(predictionSummaryFixtures) {
         for(var i=0; i < predictionSummaryFixtures.length; i++){

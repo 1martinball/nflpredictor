@@ -215,24 +215,42 @@ module.exports = () => {
 			'/savePrediction' : (req, res, next) => {
 				console.log("INFO : routerjs POST/savePrediction : Routed to - POST/savePrediction");
 				console.log("INFO : routerjs POST/savePrediction : POST request with parameters : " + JSON.stringify(req.body));
-				console.log("INFO : routerjs POST/savePrediction : About to save the prediction - " + req.body.playerPrediction);
-				var fixtures = h.getGameStateFixtures();
-				console.log("DEBUG : routerjs POST/savePrediction : Fixtures to send - " + JSON.stringify(fixtures));
-				h.savePrediction(req).then(prediction => {
-				console.log("INFO : routerjs POST/savePrediction : About to send back prediction data for redirect - " + prediction.prediction);
-					res.send({
-						url: "/predictionSummary",
-						prediction: prediction,
-						fixtures: fixtures
-					});
-				}).catch(err => {
-					console.log("ERROR : routerjs POST/savePrediction : " + err);
-					res.render('welcome', {
-						page: "Welcome",
-						error: true,
-						errorMessage : "Sorry " + req.body.player + ". There was an error saving your prediction. Please retry - game has been reset"
-					});
-				});
+				if(req.body.update === "true"){
+                    console.log("INFO : routerjs POST/savePrediction : About to update the prediction with id - " + req.body.predictionId);
+                    h.updatePrediction(req).then(recordsChanged => {
+                        console.log("INFO : routerjs POST/savePrediction : Successfully updated player prediction - " + recordsChanged + " records amended");
+                        res.send({
+                            prediction: req.body.playerPrediction,
+                            recordsUpdated: recordsChanged
+                        });
+                    }).catch(err => {
+                        console.log("ERROR : routerjs POST/savePrediction : " + err);
+                        res.render('welcome', {
+                            page: "Welcome",
+                            error: true,
+                            errorMessage : "There was an error updating your prediction. Please retry - game has been reset"
+                        });
+                    });
+				} else {
+                    console.log("INFO : routerjs POST/savePrediction : About to save the prediction - " + req.body.playerPrediction);
+                    var fixtures = h.getGameStateFixtures();
+                    console.log("DEBUG : routerjs POST/savePrediction : Fixtures to send - " + JSON.stringify(fixtures));
+                    h.savePrediction(req).then(prediction => {
+                        console.log("INFO : routerjs POST/savePrediction : About to send back prediction data for redirect - " + prediction.prediction);
+                        res.send({
+                            url: "/predictionSummary",
+                            prediction: prediction,
+                            fixtures: fixtures
+                        });
+                    }).catch(err => {
+                        console.log("ERROR : routerjs POST/savePrediction : " + err);
+                        res.render('welcome', {
+                            page: "Welcome",
+                            error: true,
+                            errorMessage : "Sorry " + req.body.player + ". There was an error saving your prediction. Please retry - game has been reset"
+                        });
+                    });
+				}
 			},
 			'/predictionSummary' : (req, res, next) => {
 				console.log("INFO : routerjs POST/predictionSummary : Routed to - POST/predictionSummary");

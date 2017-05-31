@@ -19,7 +19,7 @@ body.nfl {
 
 div.heading-text {
 	color: white;
-	font-family: Helvetica 36px bold;
+	font-size: 36px;
 	margin: 3rem auto;
 }
 
@@ -170,6 +170,13 @@ div.fixture-content-block {
 	background-color: palegoldenrod;
 }
 
+.prediction-table-at.TPick {
+	font-size: 4rem;
+	color: black;
+	background-color: palegoldenrod;
+	border: 4px solid crimson;
+}
+
 .prediction-table-at {
 	font-size: 4rem;
 	color: white;
@@ -188,6 +195,10 @@ div.fixture-content-block {
 
 .prediction-table>tr>td {
 	text-align: center;
+}
+
+td.prediction-table-at.HPick, td.prediction-table-at.RPick, td.home-col.RPick, td.home-col.TPick, td.road-col.HPick, td.road-col.TPick {
+	cursor: pointer;
 }
 
 #addPlayerBtn, #selectPlayer {

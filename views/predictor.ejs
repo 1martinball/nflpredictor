@@ -6,11 +6,12 @@
 	<title>NFL Predictor - Welcome</title>
 	<link rel="stylesheet" href="/css/base.css">
 	<link rel="stylesheet" href="/css/foundation.css">
-	<script src="js/jquery-2.1.4.min.js"></script>
-	<script src="bower_components/jquery.redirect/jquery.redirect.js"></script>
-
-	<script src="js/foundation.js"></script>
-	<script src="js/nfl.js"></script>
+	<script src="js/nfl-global.js"></script>
+	<script src="js/nfl-init.js"></script>
+	<script type="text/javascript">
+		season = <%= season %>;
+		currentWeek = <%= week %>;
+	</script>
 </head>
 
 <body class="nfl">
@@ -25,18 +26,34 @@
 			<div>
 
 			</div>
-			<div class="row">
-				<div class="small-centered small-6 columns">
-					<select id="week">
-						<option selected disabled>Select game week....</option>
-						<option>Current week</option>
-						<option>1</option>
-						<option>2</option>
-						<option>3</option>
-						<option>4</option>
-					</select>
+
+			<% if(newGame) { %>
+				<div class="row season-week-container">
+					<div class="small-centered small-6">
+						<select id="season">
+							<option selected disabled>Select season....</option>
+							<option><%=season%></option>
+							<option><%=season-1%></option>
+							<option><%=season-2%></option>
+							<option><%=season-3%></option>
+
+						</select>
+					</div>
+					<div class="small-centered small-6">
+						<select id="week">
+							<option selected disabled>Select game week....</option>
+							<option>Current week</option>
+							<option>1</option>
+							<option>2</option>
+							<option>3</option>
+							<option>4</option>
+							<option>5</option>
+							<option>6</option>
+							<option>7</option>
+						</select>
+					</div>
 				</div>
-			</div>
+			<% } %>
 
 			
 			<div class="fixture-row-container hide">
@@ -60,4 +77,8 @@
 		</div>
 
 	</div>
+	<script src="js/jquery-2.1.4.min.js"></script>
+	<script src="bower_components/jquery.redirect/jquery.redirect.js"></script>
+	<script src="js/foundation.js"></script>
+	<script src="js/nfl-predictor.js"></script>
 </body>

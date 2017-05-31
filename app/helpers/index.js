@@ -4,8 +4,10 @@ const router = require('express').Router();
 const db = require('../db');
 const http = require('http');
 
+var nflCurrentInfo = {};
 
 var gameState = {
+	name: "",
 	totalGames: 0,
 	nextGame: 1,
 	gameIndex: 0,
@@ -36,7 +38,6 @@ let route = routes => {
 }
 
 
-// The ES6 promisified version of findById
 let findById = id => {
 	return new Promise((resolve, reject) => {
 		db.userModel.findById(id, (error, user) => {
@@ -79,12 +80,15 @@ let findByName = (name, type) => {
 
 let resetGame = () => {
 	gameState = {
+		name: "",
 		totalGames: 0,
 		nextGame: 1,
 		gameIndex: 0,
 		week: 1,
 		fixtures: null
 	}
+
+	nflCurrentInfo = {};
 }
 
 let isNameValid = (name, type) => {
@@ -105,6 +109,7 @@ let isNameValid = (name, type) => {
 }
 
 let createNewGame = request => {
+	gameState.name = request.query.gamename;
 	console.log("DEBUG : Helpers index.js : Request query passed in - " + JSON.stringify(request.query));
 	console.log("INFO : Attempting to create new game on DB");
 	var playerName = request.query.playername == "" ? request.query.oldplayer : request.query.playername;
@@ -115,7 +120,8 @@ let createNewGame = request => {
 			admin: playerName,
 			status: 'open',
 			playerCount: '1',
-			week: request.query.week,
+			week: "Current week",
+			season: request.query.season,
 			players : [playerName]
 		});
 
@@ -166,6 +172,22 @@ let addPlayerToGame = request => {
 	});
 }
 
+let setGameWeekAndSeason = (week, season) => {
+    gameState.week = week;
+    gameState.season = season;
+
+    return new Promise((resolve, reject) => {
+        db.gameModel.update({name: gameState.name},{season: season, week: week}, (error, affected) => {
+            if (error) {
+                reject(error);
+            } else {
+                console.log("INFO : Successfully updated game with season and week - Season : " + season + ", Week : " + week );
+                resolve(affected);
+            }
+        });
+    });
+}
+
 let createNewPlayer = playername => {
 	console.log("INFO : Attempting to create new player " + playername + " on DB");
 	return new Promise((resolve, reject) => {
@@ -210,6 +232,35 @@ let savePrediction = request => {
 	});
 }
 
+let getInfo = () => {
+    var body = '';
+    return new Promise((resolve, reject) => {
+        var url = "http://api.suredbits.com/nfl/v0/info/";
+        console.log("INFO : Retrieving game info from : " + url);
+//		var options = {
+//			host: "internet-proxy-bov.group.net",
+//			port: 81,
+//			path: url
+//		}
+
+        http.get(url, (res) => {
+            res.on('data', function (chunk) {
+                body += chunk;
+            });
+            res.on('end', function () {
+                var response = JSON.parse(body);
+                console.log("DEBUG : Info data returned - " + response);
+                nflCurrentInfo = response;
+                resolve(nflCurrentInfo);
+            }).on('error', (e) => {
+                resetGame();
+                console.log(`ERROR : Error whilst retrieving nfl info data : ${e.message}`);
+                reject(e);
+            });
+        });
+    });
+}
+
 let getPlayers = () => {
 	return new Promise((resolve, reject) => {
 		db.playerModel.find({}, (error, players) => {
@@ -234,9 +285,11 @@ let getGames = (playername) => {
 			} else {
 				console.log("INFO : About to resolve existing games");
 				console.log("INFO : Games response :" + JSON.stringify(games));
-				resolve(games.map((game) => {
-					return game.name;
-				}));
+				var requiredData = games.map((game) => {
+                    return {name: game.name, week: game.week, season: game.season};
+                });
+				console.log("DEBUG : Mapped data to resolve to router - " + JSON.stringify(requiredData));
+				resolve(requiredData);
 			}
 		});
 	});
@@ -249,17 +302,13 @@ let getGameStateFixtures = () => {
 let getFixtures = (week, season) => {
 	var body = '';
 	gameState.nextGame = 1;
-	gameState.week = week;
-	gameState.season = season;
 	console.log("INFO : About to retrieve fixture data for selected week : " + week);
 
 	return new Promise((resolve, reject) => {
 		var url = "http://api.suredbits.com/nfl/v0/games";
-		if(week == "Current week") {
-			url = "http://api.suredbits.com/nfl/v0/games";
-		} else {
-			url = "http://api.suredbits.com/nfl/v0/games/" + season + "/" + week;
-		}
+		if(week !== "Current week") {
+            url = "http://api.suredbits.com/nfl/v0/games/" + season + "/" + week;
+        }
 		console.log("INFO : Retrieving fixtures from : " + url);
 //		var options = {
 //			host: "internet-proxy-bov.group.net",
@@ -329,5 +378,7 @@ module.exports = {
 	addPlayerToGame,
 	getGameStateFixtures,
 	savePrediction,
-	resetGame
+	resetGame,
+    setGameWeekAndSeason,
+	getInfo
 }

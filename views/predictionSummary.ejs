@@ -6,12 +6,17 @@
 	<title>NFL Predictor</title>
 	<link rel="stylesheet" href="/css/base.css">
 	<link rel="stylesheet" href="/css/foundation.css">
+	<script src="bower_components/jquery.redirect/jquery.redirect.js"></script>
 	<script src="js/jquery-2.1.4.min.js"></script>
 	<script src="js/foundation.js"></script>
-	<script src="js/nfl.js"></script>
+	<script src="js/nfl-global.js"></script>
+	<script src="js/nfl-summary.js"></script>
 	<script type="text/javascript">
-		var response = <%- JSON.stringify(fixtures) %>
-		predictionSummaryFixtures = JSON.parse(response);
+		var response = <%- JSON.stringify(fixtures) %>;
+			if(response) {
+                predictionSummaryFixtures = JSON.parse(response);
+			}
+
 	</script>
 </head>
 
@@ -24,7 +29,7 @@
 				<span class="heading-text">Predictions for <%=prediction.season%> Season - Week <%=prediction.week%></span>
 				<img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
 			</div>
-			<form action="/" method="get">
+			<form action="/">
 				<input id="exitBtn" class="small-centered small-2 std-button" type="submit" value="Exit Game" />
 			</form>
 

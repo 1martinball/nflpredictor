@@ -18,6 +18,19 @@ module.exports = () => {
 					errorMessage: ""
 				});
 			},
+			'/getInfo': (req, res, next) => {
+                console.log("INFO : Routing to : Nfl current info retrieval with request GET/getInfo");
+                console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
+                console.log("INFO : Calling helper function getInfo()");
+                h.getInfo().then(info => {
+                    console.log("INFO : Helper function getInfo() returned to router with : " + JSON.stringify(info));
+                    console.log("INFO : Sending info data");
+                    res.send(info);
+                }).catch(err => {
+                    console.log("ERROR : Error while attempting to retrieve nfl current info");
+                    console.log(err);
+                });
+			},
 			'/redzone': (req, res, next) => {
 				console.log("INFO : Routing to - Predictor at GET/redzone");
 				console.log("INFO : GET request with parameters : " + req.query);
@@ -30,12 +43,13 @@ module.exports = () => {
 							console.log("DEBUG : About to render Predictor page with data : " + JSON.stringify(game));
 							res.render('predictor', {
 								page: "NFL Predictor | Redzone",
-								season: '2016',
+								season: req.query.season,
 								error: false,
 								errorMessage: "",
-								week: '1',
+								week: game.week,
 								player: game.players[0],
 								game: game.name,
+								newGame: true,
 								fixtures: false,
 								awayTeam: null,
 								homeTeam: null
@@ -77,12 +91,13 @@ module.exports = () => {
 					console.log("INFO : Router - index.js : Player " + player + " added successfully to game " + req.query.oldGame);
 					res.render('predictor', {
 						page: "NFL Predictor | Redzone",
-						season: '2016',
+						season: req.query.season,
 						player: player,
 						game: req.query.oldGame,
 						error: false,
 						errorMessage: "",
-						week: '1',
+						week: req.query.week,
+						newGame: false,
 						fixtures: false,
 						awayTeam: null,
 						homeTeam: null
@@ -114,7 +129,7 @@ module.exports = () => {
 				console.log("INFO : GET request with parameters : " + req.query);
 				console.log("INFO : Calling helper function getGames()");
 				h.getGames(req.query.playername).then(games => {
-					console.log("INFO : Helper function getGames() returned to router with : " + games);
+					console.log("INFO : Helper function getGames() returned to router with : " + JSON.stringify(games));
 					console.log("INFO : Sending games data");
 					res.send(games);
 				}).catch(err => {
@@ -126,6 +141,7 @@ module.exports = () => {
 				console.log("INFO : Routing to : Fixture look up with request GET/getFixtures");
 				console.log("INFO : GET request with parameters : " + req.query);
 				console.log("INFO : Calling helper function getFixtures()");
+				h.setGameWeekAndSeason(req.query.week, req.query.season);
 				h.getFixtures(req.query.week, req.query.season).then(teams => {
 					console.log("INFO : Helper function getFixtures() returned to router with : " + JSON.stringify(teams));
 					console.log("INFO : Sending fixture data");

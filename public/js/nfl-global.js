@@ -116,9 +116,9 @@ let getFixturesService = function (week) {
             totalGames = result.totalFixtures;
             $('.team-badge.home').attr("src", "../images/teams/" + result.homeTeam + "_logo.svg");
             $('.team-badge.away').attr("src", "../images/teams/" + result.awayTeam + "_logo.svg");
-            $('span.week-number').html("Week " + weekChosen);
+            $('span.week-number').html("Week " + week);
+            $('span.season-number').html("Season " + season);
             $('span.js-fixtures-remaining').html(fixturesLeftToPredict);
-
             $('.fixture-row-container').removeClass('hide');
             $('select#week').addClass('hide');
             $('.page-title').slideUp('slow');

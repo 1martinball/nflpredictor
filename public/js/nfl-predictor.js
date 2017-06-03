@@ -62,13 +62,13 @@ let bindClickEvents = function() {
             if(playerPredictionString.length == totalGames) {
                 $.ajax("/savePrediction", {
                     method: 'POST',
-                    data : { playerPrediction : playerPredictionString, player: currentPlayer, game : currentGame, week: weekChosen, update: false},
+                    data : { playerPrediction : playerPredictionString, player: currentPlayer, game : currentGame, week: weekChosen},
                     dataType: 'json',
                     success: function (result, status, req) {
                         console.log("DEBUG : result-button.click : Returned from saving prediction successfully - " + JSON.stringify(result));
                         console.log("DEBUG : result-button.click :  - " + JSON.stringify(result.fixtures[0].homeTeam));
                         console.log("INFO : result-button.click : Redirecting to prediction summary page");
-                        $.redirect(result.url, { prediction: result.prediction, fixtures: JSON.stringify(result.fixtures)});
+                        $.redirect(result.url, { prediction: result.prediction, week:result.week, player: result.player, game: result.game, totalGames: result.totalGames, season: result.season, fixtures: JSON.stringify(result.fixtures)});
                     }
                 });
             } else {

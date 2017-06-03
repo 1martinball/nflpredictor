@@ -34,9 +34,11 @@ let bindSubmitEvent = function(){
 
     $('#summaryForm').submit(function(e){
 
+        let game = $('#predictionGame').val();
+        let player = $('#summaryPlayer').html();
         $.ajax("/savePrediction", {
             method: 'POST',
-            data : { playerPrediction : $('#predictionString').val(), predictionId: $('#predictionId').val() , update: true},
+            data : { playerPrediction : $('#predictionString').val(), game: game , player: player},
             dataType: 'json',
             success: function (result, status, req) {
                 console.log("DEBUG : summaruSubmit : Returned from updating prediction successfully - " + JSON.stringify(result));

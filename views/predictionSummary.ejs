@@ -24,15 +24,15 @@
 	<div class="small-12 panel" id="top-panel-container">
 		<div>
 			<div class="text-center page-title">
-				<h2>Player Name : <%=prediction.playername%></h2>
+                <h2>Player Name : <span id="summaryPlayer"><%=player%></span></h2>
 				<img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
-				<span class="heading-text">Predictions for <%=prediction.season%> Season - Week <%=prediction.week%></span>
+				<span class="heading-text">Predictions for <%=season%> Season - Week <%=week%></span>
 				<img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
 			</div>
 			<form id="summaryForm" action="/">
 				<input id="saveAndExitBtn" class="small-centered small-2 std-button" type="submit" value="Save and Exit" />
-                <input id="predictionString" type="hidden" value="<%= prediction.prediction %>" />
-                <input id="predictionId" type="hidden" value="<%= prediction._id %>" />
+                <input id="predictionString" type="hidden" value="<%= prediction %>" />
+                <input id="predictionGame" type="hidden" value="<%= game %>" />
 			</form>
 
                 <div class="row main-content-predictions">
@@ -43,16 +43,16 @@
                             <th></th>
                             <th>Home Team</th>
                         </tr>
-                        <% for(var i = 0; i < prediction.totalGames; i++){ %>
+                        <% for(var i = 0; i < totalGames; i++){ %>
                         <tr>
-                            <td id="R-<%= i %>" class="road-col small-3  <%= prediction.prediction[i] %>Pick">
+                            <td id="R-<%= i %>" class="road-col small-3  <%= prediction[i] %>Pick">
                                 <img class="team-badge-small away<%= i %>" type="image/svg+xml"
                                      src="/images/teams/WAS_logo.svg"/>
                             </td>
                             <td id="T-<%= i %>"
-                                class="prediction-table-at small-1 <%= prediction.prediction[i] %>Pick">@
+                                class="prediction-table-at small-1 <%= prediction[i] %>Pick">@
                             </td>
-                            <td id="H-<%= i %>" class="home-col small-3 <%= prediction.prediction[i] %>Pick">
+                            <td id="H-<%= i %>" class="home-col small-3 <%= prediction[i] %>Pick">
                                 <img class="team-badge-small home<%= i %>" type="image/svg+xml"
                                      src="/images/teams/WAS_logo.svg"/>
                             </td>

@@ -122,7 +122,7 @@ let createNewGame = request => {
 			playerCount: '1',
 			week: "Current week",
 			season: request.query.season,
-			players : [playerName]
+			players : [{name: playerName, prediction: ""}]
 		});
 
 		newGame.save(error => {
@@ -143,8 +143,9 @@ let addPlayerToGame = request => {
 	return new Promise((resolve, reject) => {
 		findByName(gameName, 'game').then(result => {
 			var pCount = result.playerCount;
+			var playerArray = result.players;
 			pCount++;
-			if (result.players.indexOf(playerName) != -1){
+			if (playerArray.some((player => { player.name === playerName}))){
 				console.log("ERROR : Player " + playerName + " is already playing in game " + gameName);
 				reject(new Error("Player " + playerName + " is already playing in game " + gameName));
 			} else {
@@ -152,7 +153,7 @@ let addPlayerToGame = request => {
 				db.gameModel.findByIdAndUpdate(result._id,
 					{
 						"$set": {"playerCount": pCount},
-						"$push": {"players": playerName}
+						"$push": {"players": {name: playerName, prediction : ""}}
 					},
 					{ "new": true, "upsert": false},
 					function(err, data) {
@@ -207,40 +208,15 @@ let createNewPlayer = playername => {
 	});
 }
 
-let savePrediction = request => {
-	console.log("INFO : helpers.indexjs.savePrediction : Attempting to save prediction " + request.body.playerPrediction + " for " + request.body.player + " on DB");
-	return new Promise((resolve, reject) => {
-		let newPrediction = new db.predictionModel({
-			gamename: request.body.game,
-			playername: request.body.player,
-			totalGames: gameState.totalGames,
-			season: gameState.season,
-			week: gameState.week,
-			prediction: request.body.playerPrediction
-		});
-
-		newPrediction.save(error => {
-			if (error) {
-				resetGame();
-				reject(new Error("ERROR : helpers.indexjs.savePrediction : Error saving prediction to repository"));
-			} else {
-				console.log("INFO : helpers.indexjs.savePrediction : Prediction saved successfully");
-				console.log("INFO : helpers.indexjs.savePrediction : About to resolve prediction - " + JSON.stringify(newPrediction));
-				resolve(newPrediction);
-			}
-		});
-	});
-}
-
 let updatePrediction = request => {
-    console.log("INFO : helpers.indexjs.updatePrediction : Attempting to update prediction to " + request.body.playerPrediction + " for id - " + request.body.predictionId + " on DB");
+    console.log("INFO : helpers.indexjs.updatePrediction : Attempting to update prediction to " + request.body.playerPrediction + " for player - " + request.body.player + " on DB");
 
     return new Promise((resolve, reject) => {
-        db.predictionModel.update({_id: request.body.predictionId},{prediction: request.body.playerPrediction}, (error, affected) => {
+        db.gameModel.update({name: request.body.game, 'players.name': request.body.player},{'$set': {'players.$.prediction': request.body.playerPrediction}}, (error, affected) => {
             if (error) {
                 reject(error);
             } else {
-                console.log("INFO : Successfully updated prediction with id : " + request.body.predictionId);
+                console.log("INFO : Successfully updated game with prediction : " + request.body.playerPrediction);
                 resolve(affected);
             }
         });
@@ -295,12 +271,10 @@ let getPlayers = () => {
 
 let getGames = (playername, inGame) => {
 	var query = "";
-	// var playerSearchOption = inGame === false ? "$ne" : "$in";
-	// var gameStatusSearchOption = inGame === false ? "open" : ""
 	if(inGame === "true") {
-		query = db.gameModel.where('players', {"$eq": playername});
+		query = db.gameModel.where('players.name', {"$eq": playername});
 	} else {
-        query = db.gameModel.where({status: 'open', players: {"$ne": playername}});
+        query = db.gameModel.where({status: 'open', 'players.name': {$ne: playername}});
 	}
 	return new Promise((resolve, reject) => {
 		db.gameModel.find(query, (error, games) => {
@@ -323,20 +297,16 @@ let getGames = (playername, inGame) => {
 	});
 }
 
-let getPlayersForGame = (gamename) => {
-    return new Promise((resolve, reject) => {
-        findByName(gamename, 'game').then(game => {
-			console.log("INFO : About to resolve players for game " + game.name);
-			console.log("INFO : Game response :" + JSON.stringify(game));
-			resolve(game.players);
-        }).catch(err => {
-        	reject(err);
-		});
-    });
-}
-
 let getGameStateFixtures = () => {
 	return gameState.fixtures;
+}
+
+let getTotalFixtures = () => {
+    return gameState.totalGames;
+}
+
+let getSeason = () => {
+    return gameState.season;
 }
 
 let getFixtures = (week, season) => {
@@ -454,11 +424,11 @@ module.exports = {
 	getGames,
 	addPlayerToGame,
 	getGameStateFixtures,
-	savePrediction,
 	resetGame,
     setGameWeekAndSeason,
 	getInfo,
 	updatePrediction,
     getAllFixtures,
-	getPlayersForGame
+	getTotalFixtures,
+	getSeason
 }

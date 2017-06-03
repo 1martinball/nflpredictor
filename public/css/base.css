@@ -27,9 +27,6 @@ div.heading-text {
 /****** welcome page *********/
 /*****************************/
 
-#newgame {
-	margin: 5rem 0;
-}
 
 h3.error {
 	color: yellow;
@@ -42,6 +39,7 @@ h3.error {
 /****** inputs, buttons *********/
 /*****************************/
 .std-button {
+	margin: 5rem 0;
 	text-align: center;
 	border-radius: 8px;
 	display: block;

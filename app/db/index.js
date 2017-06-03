@@ -15,7 +15,7 @@ const nflGame = new Mongoose.Schema({
 	playerCount: Number,
 	season: String,
 	week: String,
-	players: [String]
+	players: [{name: String, prediction: String}]
 });
 
 const player = new Mongoose.Schema({
@@ -23,24 +23,12 @@ const player = new Mongoose.Schema({
 	predictions: [Mongoose.Schema.Types.ObjectId]
 });
 
-const nflPrediction = new Mongoose.Schema({
-	gamename: String,
-	playername: String,
-	totalGames: Number,
-	week: Number,
-	season: String,
-	prediction: String
-});
-
-
 let gameModel = Mongoose.model('nflGame', nflGame);
 let playerModel = Mongoose.model('player', player);
-let predictionModel = Mongoose.model('nflPrediction', nflPrediction);
 
 module.exports = {
 	Mongoose,
 	gameModel,
-	playerModel,
-	predictionModel
+	playerModel
 }
 

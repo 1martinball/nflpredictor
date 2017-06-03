@@ -47,7 +47,7 @@ module.exports = () => {
 								error: false,
 								errorMessage: "",
 								week: game.week,
-								player: game.players[0],
+								player: game.players[0].name,
 								game: game.name,
 								newGame: true,
 								fixtures: false,
@@ -128,7 +128,7 @@ module.exports = () => {
 				console.log("INFO : Routing to : Game look up with request GET/getGames");
 				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
 				console.log("INFO : Calling helper function getGames()");
-				h.getGames(req.query.playername).then(games => {
+				h.getGames(req.query.playername, req.query.inGame).then(games => {
 					console.log("INFO : Helper function getGames() returned to router with : " + JSON.stringify(games));
 					console.log("INFO : Sending games data");
 					res.send(games);
@@ -175,7 +175,32 @@ module.exports = () => {
 						error: false,
 						fixtures: true
 					});	
-			}
+			},
+			'/viewGame': (req, res, next) => {
+				console.log("INFO : Routing to : View game data and results with request /viewGame");
+				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
+                res.render('viewGame', {
+                    page: "Game And Result Viewer",
+                    player: req.query.player
+                });
+			},
+            '/getAllFixtures': (req, res, next) => {
+                console.log("INFO : Routing to : Fixture look up with request GET/getAllFixtures");
+                console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
+                console.log("INFO : Calling helper function getAllFixtures()");
+                h.getAllFixtures(req.query.week, req.query.season).then(fixtures => {
+                    console.log("INFO : Helper function getAllFixtures() returned to router with : " + JSON.stringify(fixtures));
+                    console.log("INFO : Sending all fixture data");
+                    res.send({
+                        totalFixtures: fixtures.totalFixtures,
+                        error: false,
+                        fixtures: fixtures.fixtures
+                    });
+                }).catch(err => {
+                    console.log("ERROR : Error while attempting to retrieve fixtures");
+                    console.log(err);
+                })
+            }
 		},
 		'post': {
 			'/addPlayer' : (req, res, next) => {
@@ -197,15 +222,6 @@ module.exports = () => {
 							});
 						});
 					}
-						//else {
-//						console.log("INFO : Player validation failed - name already in use - try again");
-//						h.resetGame();
-//						res.render('welcome', {
-//							page: "Welcome",
-//							error: true,
-//							errorMessage : req.body.playername + " is already in use. Please try again"
-//						});
-//					}
 				}).catch(name => {
 					console.log("INFO : Problem found when checking if " + name + " is valid");
 					h.resetGame();
@@ -215,42 +231,31 @@ module.exports = () => {
 			'/savePrediction' : (req, res, next) => {
 				console.log("INFO : routerjs POST/savePrediction : Routed to - POST/savePrediction");
 				console.log("INFO : routerjs POST/savePrediction : POST request with parameters : " + JSON.stringify(req.body));
-				if(req.body.update === "true"){
-                    console.log("INFO : routerjs POST/savePrediction : About to update the prediction with id - " + req.body.predictionId);
-                    h.updatePrediction(req).then(recordsChanged => {
-                        console.log("INFO : routerjs POST/savePrediction : Successfully updated player prediction - " + recordsChanged + " records amended");
-                        res.send({
-                            prediction: req.body.playerPrediction,
-                            recordsUpdated: recordsChanged
-                        });
-                    }).catch(err => {
-                        console.log("ERROR : routerjs POST/savePrediction : " + err);
-                        res.render('welcome', {
-                            page: "Welcome",
-                            error: true,
-                            errorMessage : "There was an error updating your prediction. Please retry - game has been reset"
-                        });
-                    });
-				} else {
-                    console.log("INFO : routerjs POST/savePrediction : About to save the prediction - " + req.body.playerPrediction);
-                    var fixtures = h.getGameStateFixtures();
-                    console.log("DEBUG : routerjs POST/savePrediction : Fixtures to send - " + JSON.stringify(fixtures));
-                    h.savePrediction(req).then(prediction => {
-                        console.log("INFO : routerjs POST/savePrediction : About to send back prediction data for redirect - " + prediction.prediction);
-                        res.send({
-                            url: "/predictionSummary",
-                            prediction: prediction,
-                            fixtures: fixtures
-                        });
-                    }).catch(err => {
-                        console.log("ERROR : routerjs POST/savePrediction : " + err);
-                        res.render('welcome', {
-                            page: "Welcome",
-                            error: true,
-                            errorMessage : "Sorry " + req.body.player + ". There was an error saving your prediction. Please retry - game has been reset"
-                        });
-                    });
-				}
+				console.log("INFO : routerjs POST/savePrediction : About to update the prediction with - " + req.body.playerPrediction);
+				var fixtures = h.getGameStateFixtures();
+				var totalGames = h.getTotalFixtures();
+				var season = h.getSeason();
+				h.updatePrediction(req).then(recordsChanged => {
+					console.log("INFO : routerjs POST/savePrediction : Successfully updated player prediction - " + recordsChanged + " record amended");
+					res.send({
+						url: "/predictionSummary",
+						prediction: req.body.playerPrediction,
+						week: req.body.week,
+						player: req.body.player,
+						game: req.body.game,
+						totalGames: totalGames,
+						season: season,
+						fixtures: fixtures,
+						recordsUpdated: recordsChanged
+					});
+				}).catch(err => {
+					console.log("ERROR : routerjs POST/savePrediction : " + err);
+					res.render('welcome', {
+						page: "Welcome",
+						error: true,
+						errorMessage : "There was an error updating your prediction. Please retry - game has been reset"
+					});
+				});
 			},
 			'/predictionSummary' : (req, res, next) => {
 				console.log("INFO : routerjs POST/predictionSummary : Routed to - POST/predictionSummary");
@@ -258,6 +263,11 @@ module.exports = () => {
 				res.render('predictionSummary', {
 					page: "Prediction Summary",
 					prediction: req.body.prediction,
+					week: req.body.week,
+					player: req.body.player,
+					game: req.body.game,
+					totalGames: req.body.totalGames,
+					season: req.body.season,
 					fixtures: req.body.fixtures
 				});
 			}

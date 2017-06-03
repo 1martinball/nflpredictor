@@ -122,7 +122,7 @@ let createNewGame = request => {
 			playerCount: '1',
 			week: "Current week",
 			season: request.query.season,
-			players : [playerName]
+			players : [{name: playerName, prediction: ""}]
 		});
 
 		newGame.save(error => {
@@ -143,8 +143,9 @@ let addPlayerToGame = request => {
 	return new Promise((resolve, reject) => {
 		findByName(gameName, 'game').then(result => {
 			var pCount = result.playerCount;
+			var playerArray = result.players;
 			pCount++;
-			if (result.players.indexOf(playerName) != -1){
+			if (playerArray.some((player => { player.name === playerName}))){
 				console.log("ERROR : Player " + playerName + " is already playing in game " + gameName);
 				reject(new Error("Player " + playerName + " is already playing in game " + gameName));
 			} else {
@@ -152,7 +153,7 @@ let addPlayerToGame = request => {
 				db.gameModel.findByIdAndUpdate(result._id,
 					{
 						"$set": {"playerCount": pCount},
-						"$push": {"players": playerName}
+						"$push": {"players": {name: playerName, prediction : ""}}
 					},
 					{ "new": true, "upsert": false},
 					function(err, data) {
@@ -207,40 +208,15 @@ let createNewPlayer = playername => {
 	});
 }
 
-let savePrediction = request => {
-	console.log("INFO : helpers.indexjs.savePrediction : Attempting to save prediction " + request.body.playerPrediction + " for " + request.body.player + " on DB");
-	return new Promise((resolve, reject) => {
-		let newPrediction = new db.predictionModel({
-			gamename: request.body.game,
-			playername: request.body.player,
-			totalGames: gameState.totalGames,
-			season: gameState.season,
-			week: gameState.week,
-			prediction: request.body.playerPrediction
-		});
-
-		newPrediction.save(error => {
-			if (error) {
-				resetGame();
-				reject(new Error("ERROR : helpers.indexjs.savePrediction : Error saving prediction to repository"));
-			} else {
-				console.log("INFO : helpers.indexjs.savePrediction : Prediction saved successfully");
-				console.log("INFO : helpers.indexjs.savePrediction : About to resolve prediction - " + JSON.stringify(newPrediction));
-				resolve(newPrediction);
-			}
-		});
-	});
-}
-
 let updatePrediction = request => {
-    console.log("INFO : helpers.indexjs.updatePrediction : Attempting to update prediction to " + request.body.playerPrediction + " for id - " + request.body.predictionId + " on DB");
+    console.log("INFO : helpers.indexjs.updatePrediction : Attempting to update prediction to " + request.body.playerPrediction + " for player - " + request.body.player + " on DB");
 
     return new Promise((resolve, reject) => {
-        db.predictionModel.update({_id: request.body.predictionId},{prediction: request.body.playerPrediction}, (error, affected) => {
+        db.gameModel.update({name: request.body.game, 'players.name': request.body.player},{'$set': {'players.$.prediction': request.body.playerPrediction}}, (error, affected) => {
             if (error) {
                 reject(error);
             } else {
-                console.log("INFO : Successfully updated prediction with id : " + request.body.predictionId);
+                console.log("INFO : Successfully updated game with prediction : " + request.body.playerPrediction);
                 resolve(affected);
             }
         });
@@ -293,16 +269,26 @@ let getPlayers = () => {
 	});
 }
 
-let getGames = (playername) => {
+let getGames = (playername, inGame) => {
+	var query = "";
+	if(inGame === "true") {
+		query = db.gameModel.where('players.name', {"$eq": playername});
+	} else {
+        query = db.gameModel.where({status: 'open', 'players.name': {$ne: playername}});
+	}
 	return new Promise((resolve, reject) => {
-		db.gameModel.find({status: 'open', players: {"$ne": playername}}, (error, games) => {
+		db.gameModel.find(query, (error, games) => {
 			if (error) {
 				reject(error);
 			} else {
 				console.log("INFO : About to resolve existing games");
 				console.log("INFO : Games response :" + JSON.stringify(games));
 				var requiredData = games.map((game) => {
-                    return {name: game.name, week: game.week, season: game.season};
+					if(inGame === "false"){
+                        return {name: game.name, week: game.week, season: game.season};
+					} else {
+                        return {name: game.name, week: game.week, season: game.season, players: game.players};
+                    }
                 });
 				console.log("DEBUG : Mapped data to resolve to router - " + JSON.stringify(requiredData));
 				resolve(requiredData);
@@ -313,6 +299,14 @@ let getGames = (playername) => {
 
 let getGameStateFixtures = () => {
 	return gameState.fixtures;
+}
+
+let getTotalFixtures = () => {
+    return gameState.totalGames;
+}
+
+let getSeason = () => {
+    return gameState.season;
 }
 
 let getFixtures = (week, season) => {
@@ -345,6 +339,43 @@ let getFixtures = (week, season) => {
 				gameState.totalGames = fixtureResponse.length;
 				console.log("INFO : calling helper function getNextGame() to return first fixture")
 				resolve(getNextGame()); 
+			}).on('error', (e) => {
+				resetGame();
+				console.log(`ERROR : Error whilst retrieving fixture data : ${e.message}`);
+				reject(e);
+			});
+		});
+	});
+}
+
+let getAllFixtures = (week, season) => {
+	var body = '';
+	gameState.nextGame = 1;
+	console.log("INFO : About to retrieve fixture data for selected season - " + season + " and week - " + week);
+
+	return new Promise((resolve, reject) => {
+		var url = "http://api.suredbits.com/nfl/v0/games";
+		if(week !== "Current week") {
+            url = "http://api.suredbits.com/nfl/v0/games/" + season + "/" + week;
+        }
+		console.log("INFO : Retrieving fixtures from : " + url);
+//		var options = {
+//			host: "internet-proxy-bov.group.net",
+//			port: 81,
+//			path: url
+//		}
+
+		http.get(url, (res) => {
+			res.on('data', function (chunk) {
+				body += chunk;
+			});
+
+			res.on('end', function () {
+				var fixtureResponse = JSON.parse(body);
+				console.log("DEBUG : Fixture data returned - " + fixtureResponse);
+				console.log("INFO : There were " + fixtureResponse.length + " games returned in response");
+				var fixtures = {fixtures: fixtureResponse, totalFixtures: fixtureResponse.length}
+				resolve(fixtures);
 			}).on('error', (e) => {
 				resetGame();
 				console.log(`ERROR : Error whilst retrieving fixture data : ${e.message}`);
@@ -393,9 +424,11 @@ module.exports = {
 	getGames,
 	addPlayerToGame,
 	getGameStateFixtures,
-	savePrediction,
 	resetGame,
     setGameWeekAndSeason,
 	getInfo,
-	updatePrediction
+	updatePrediction,
+    getAllFixtures,
+	getTotalFixtures,
+	getSeason
 }

@@ -65,19 +65,22 @@ let resetGame = function() {
     existingGamesList = [];
 }
 
-let getExistingGameNames = function(){
-
-    console.log("INFO : Retrieving existing games for dropdown");
+let getExistingGameNames = function(elementToAppend, inGame){
+    if(inGame){
+        console.log("INFO : Retrieving existing games for player " + currentPlayer + " to populate results dropdown");
+    } else {
+        console.log("INFO : Retrieving existing games for dropdown for elligible games for player " + currentPlayer + " to enter");
+    }
     $.ajax({
         url: '/getGames',
-        data: "playername=" + currentPlayer,
+        data: "playername=" + currentPlayer + "&inGame=" + inGame,
         success: function (result, status, req) {
             console.log("INFO - successfully returned from getGames call with result - " + result);
             console.log("DEBUG : Returned " + result.length + " games");
             existingGamesList = result;
             for (var i=0; i < result.length; i++){
                 console.log("DEBUG : About to append " + result[i].name + " to dropdown");
-                $('#selectGame').append('<option value="' + result[i].name + '">' + result[i].name + '</option>');
+                $(elementToAppend).append('<option value="' + result[i].name + '">' + result[i].name + '</option>');
             }
         }
     });

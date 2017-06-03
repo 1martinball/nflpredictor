@@ -23,7 +23,11 @@ let bindClickEvents = function(){
         $('.game-buttons-container').addClass('hide');
         $(".oldgame-info-container").removeClass('hide');
         $(".oldgame-info-container").slideDown(300);
-        getExistingGameNames();
+        getExistingGameNames('#selectGame', false);
+    });
+
+    $("#viewgame").click(function () {
+        window.location = 'viewGame?player='+currentPlayer;
     });
 
     $("#addPlayerBtn").click(function () {

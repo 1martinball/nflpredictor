@@ -128,7 +128,7 @@ module.exports = () => {
 				console.log("INFO : Routing to : Game look up with request GET/getGames");
 				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
 				console.log("INFO : Calling helper function getGames()");
-				h.getGames(req.query.playername).then(games => {
+				h.getGames(req.query.playername, req.query.inGame).then(games => {
 					console.log("INFO : Helper function getGames() returned to router with : " + JSON.stringify(games));
 					console.log("INFO : Sending games data");
 					res.send(games);
@@ -175,7 +175,45 @@ module.exports = () => {
 						error: false,
 						fixtures: true
 					});	
-			}
+			},
+			'/viewGame': (req, res, next) => {
+				console.log("INFO : Routing to : View game data and results with request /viewGame");
+				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
+                res.render('viewGame', {
+                    page: "Game And Result Viewer",
+                    player: req.query.player
+                });
+			},
+            '/getAllFixtures': (req, res, next) => {
+                console.log("INFO : Routing to : Fixture look up with request GET/getAllFixtures");
+                console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
+                console.log("INFO : Calling helper function getAllFixtures()");
+                h.getAllFixtures(req.query.week, req.query.season).then(fixtures => {
+                    console.log("INFO : Helper function getAllFixtures() returned to router with : " + JSON.stringify(fixtures));
+                    console.log("INFO : Sending all fixture data");
+                    res.send({
+                        totalFixtures: fixtures.totalFixtures,
+                        error: false,
+                        fixtures: fixtures.fixtures
+                    });
+                }).catch(err => {
+                    console.log("ERROR : Error while attempting to retrieve fixtures");
+                    console.log(err);
+                })
+            },
+            '/getPlayersForGame': (req, res, next) => {
+                console.log("INFO : Routing to : Player list for game " + req.query.game + " with request GET/getPlayersForGame");
+                console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
+                console.log("INFO : Calling helper function getPlayersForGame()");
+                h.getPlayersForGame(req.query.game).then(players => {
+                    console.log("INFO : Helper function getPlayersForGame() returned to router with : " + JSON.stringify(players));
+                    console.log("INFO : Sending players list data");
+                    res.send(players);
+                }).catch(err => {
+                    console.log("ERROR : Error while attempting to retrieve list of players for game " + req.query.game);
+                    console.log(err);
+                });
+            }
 		},
 		'post': {
 			'/addPlayer' : (req, res, next) => {

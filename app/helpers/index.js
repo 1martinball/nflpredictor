@@ -293,22 +293,46 @@ let getPlayers = () => {
 	});
 }
 
-let getGames = (playername) => {
+let getGames = (playername, inGame) => {
+	var query = "";
+	// var playerSearchOption = inGame === false ? "$ne" : "$in";
+	// var gameStatusSearchOption = inGame === false ? "open" : ""
+	if(inGame === "true") {
+		query = db.gameModel.where('players', {"$eq": playername});
+	} else {
+        query = db.gameModel.where({status: 'open', players: {"$ne": playername}});
+	}
 	return new Promise((resolve, reject) => {
-		db.gameModel.find({status: 'open', players: {"$ne": playername}}, (error, games) => {
+		db.gameModel.find(query, (error, games) => {
 			if (error) {
 				reject(error);
 			} else {
 				console.log("INFO : About to resolve existing games");
 				console.log("INFO : Games response :" + JSON.stringify(games));
 				var requiredData = games.map((game) => {
-                    return {name: game.name, week: game.week, season: game.season};
+					if(inGame === "false"){
+                        return {name: game.name, week: game.week, season: game.season};
+					} else {
+                        return {name: game.name, week: game.week, season: game.season, players: game.players};
+                    }
                 });
 				console.log("DEBUG : Mapped data to resolve to router - " + JSON.stringify(requiredData));
 				resolve(requiredData);
 			}
 		});
 	});
+}
+
+let getPlayersForGame = (gamename) => {
+    return new Promise((resolve, reject) => {
+        findByName(gamename, 'game').then(game => {
+			console.log("INFO : About to resolve players for game " + game.name);
+			console.log("INFO : Game response :" + JSON.stringify(game));
+			resolve(game.players);
+        }).catch(err => {
+        	reject(err);
+		});
+    });
 }
 
 let getGameStateFixtures = () => {
@@ -345,6 +369,43 @@ let getFixtures = (week, season) => {
 				gameState.totalGames = fixtureResponse.length;
 				console.log("INFO : calling helper function getNextGame() to return first fixture")
 				resolve(getNextGame()); 
+			}).on('error', (e) => {
+				resetGame();
+				console.log(`ERROR : Error whilst retrieving fixture data : ${e.message}`);
+				reject(e);
+			});
+		});
+	});
+}
+
+let getAllFixtures = (week, season) => {
+	var body = '';
+	gameState.nextGame = 1;
+	console.log("INFO : About to retrieve fixture data for selected season - " + season + " and week - " + week);
+
+	return new Promise((resolve, reject) => {
+		var url = "http://api.suredbits.com/nfl/v0/games";
+		if(week !== "Current week") {
+            url = "http://api.suredbits.com/nfl/v0/games/" + season + "/" + week;
+        }
+		console.log("INFO : Retrieving fixtures from : " + url);
+//		var options = {
+//			host: "internet-proxy-bov.group.net",
+//			port: 81,
+//			path: url
+//		}
+
+		http.get(url, (res) => {
+			res.on('data', function (chunk) {
+				body += chunk;
+			});
+
+			res.on('end', function () {
+				var fixtureResponse = JSON.parse(body);
+				console.log("DEBUG : Fixture data returned - " + fixtureResponse);
+				console.log("INFO : There were " + fixtureResponse.length + " games returned in response");
+				var fixtures = {fixtures: fixtureResponse, totalFixtures: fixtureResponse.length}
+				resolve(fixtures);
 			}).on('error', (e) => {
 				resetGame();
 				console.log(`ERROR : Error whilst retrieving fixture data : ${e.message}`);
@@ -397,5 +458,7 @@ module.exports = {
 	resetGame,
     setGameWeekAndSeason,
 	getInfo,
-	updatePrediction
+	updatePrediction,
+    getAllFixtures,
+	getPlayersForGame
 }

@@ -21,8 +21,6 @@
             <img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
             <span class="heading-text">View Games and Results</span>
             <img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
-        </div>
-        <div class="small-12 columns gameview-info-container">
             <div class="small-centered small-12 columns">
                 <select id="selectGameToView" name="gameToView">
                     <option selected disabled>Select an existing game....</option>
@@ -30,15 +28,14 @@
             </div>
         </div>
 
-
-        <div class="row main-content-view hide">
+        <div class="row main-content-view">
             <div id="results-table-container" class="table-container">
-                <table class="game-view-table small-centered">
+                <table class="game-view-table small-centered hide">
                     <thead id="result-table-header" class="table-header">
-                        <tr class="view-table-header">
-                            <th>Road Team</th>
-                            <th></th>
-                            <th>Home Team</th>
+                        <tr class="result-table-header-row text-center">
+                            <th class="text-center">Road Team</th>
+                            <th class="text-center"></th>
+                            <th class="text-center">Home Team</th>
                         </tr>
                     </thead>
                     <tbody id="result-table-body" class="table-body"></tbody>

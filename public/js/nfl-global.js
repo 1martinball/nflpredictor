@@ -4,7 +4,6 @@ var homeTeam = "No team loaded";
 var awayTeam = "No team loaded";
 var fixturesLeftToPredict = 0;
 var totalGames = 0;
-var weekChosen = null;
 var currentPlayer = "";
 var currentGame = "";
 var currentWeek = "";
@@ -57,7 +56,6 @@ let resetGame = function() {
     awayTeam = "No team loaded";
     fixturesLeftToPredict = 0;
     totalGames = 0;
-    weekChosen = null;
     playerPredictionString = "";
     currentPlayer = "";
     currentGame = "";
@@ -69,18 +67,40 @@ let getExistingGameNames = function(elementToAppend, inGame){
     if(inGame){
         console.log("INFO : Retrieving existing games for player " + currentPlayer + " to populate results dropdown");
     } else {
-        console.log("INFO : Retrieving existing games for dropdown for elligible games for player " + currentPlayer + " to enter");
+        console.log("INFO : Retrieving existing games for dropdown for eligible games for player " + currentPlayer + " to enter");
     }
     $.ajax({
         url: '/getGames',
         data: "playername=" + currentPlayer + "&inGame=" + inGame,
         success: function (result, status, req) {
-            console.log("INFO - successfully returned from getGames call with result - " + result);
-            console.log("DEBUG : Returned " + result.length + " games");
-            existingGamesList = result;
-            for (var i=0; i < result.length; i++){
-                console.log("DEBUG : About to append " + result[i].name + " to dropdown");
-                $(elementToAppend).append('<option value="' + result[i].name + '">' + result[i].name + '</option>');
+            if(result.length){
+                console.log("INFO - successfully returned from getGames call with result - " + result);
+                console.log("DEBUG : Returned " + result.length + " games");
+                existingGamesList = result;
+                for (var i=0; i < result.length; i++){
+                    console.log("DEBUG : About to append " + result[i].name + " to dropdown");
+                    $(elementToAppend).append('<option value="' + result[i].name + '">' + result[i].name + '</option>');
+                }
+                if (!inGame) {
+                    $('.game-buttons-container').addClass('hide');
+                    $(".oldgame-info-container").removeClass('hide');
+                    $(".oldgame-info-container").slideDown(300);
+                }
+            } else {
+                if(!inGame) {
+                    console.log("INFO : There are no existing games to play in - returning to main menu");
+                    $('.message.error').html("Sorry, there are no valid existing games to play in");
+                    $('.message.error').removeClass('hide');
+                    setTimeout(function(){
+                        $('.message').html("");
+                    }, 3000);
+                } else {
+                    console.log("INFO : There are no game results to view - returning to main menu");
+                    alert("Sorry, you have no games to view at this time");
+                    resetGame();
+                    window.location.replace('http://localhost:3000');
+                }
+
             }
         }
     });

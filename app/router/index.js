@@ -171,6 +171,7 @@ module.exports = () => {
 						homeTeam: next.homeTeam,
 						awayTeam: next.awayTeam,
 						season: '2016',
+						week: next.week,
 						game: next.game,
 						error: false,
 						fixtures: true

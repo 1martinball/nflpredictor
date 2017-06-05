@@ -20,9 +20,6 @@ let bindClickEvents = function(){
     });
 
     $("#oldgame").click(function () {
-        $('.game-buttons-container').addClass('hide');
-        $(".oldgame-info-container").removeClass('hide');
-        $(".oldgame-info-container").slideDown(300);
         getExistingGameNames('#selectGame', false);
     });
 

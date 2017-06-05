@@ -13,11 +13,11 @@ let bindChangeEvents = function() {
         $(".fixture-row-container").removeClass('hide');
         $(".fixture-row-container").slideDown(300);
         console.log("INFO : #week.change - About to do ajax call to retrieve fixtures");
-        weekChosen = $('#week').find(":selected").text();
+        currentWeek = $('#week').find(":selected").text();
         season = $('#season').find(":selected").text();
-        console.log("DEBUG : Week Chosen = " + weekChosen);
+        console.log("DEBUG : Week Chosen = " + currentWeek);
         console.log("DEBUG : Season = " + season);
-        getFixturesService(weekChosen);
+        getFixturesService(currentWeek);
     });
 }
 
@@ -39,9 +39,10 @@ let bindClickEvents = function() {
             $.ajax("/getNextGame", {
                 method: 'GET',
                 success: function (result, status, req) {
-                    console.log("INFO : nfljs .result-button.click : GET/getNextGame returned successfully - " + JSON.stringify(result));
+                    console.log("INFO : result-button.click : GET/getNextGame returned successfully - " + JSON.stringify(result));
                     homeTeam = result.homeTeam;
                     awayTeam = result.awayTeam;
+                    currentWeek = result.week;
                     fixturesLeftToPredict--;
                     $('span.js-fixtures-remaining').html(fixturesLeftToPredict);
                     $('.team-badge.home').attr("src", "../images/teams/" + result.homeTeam + "_logo.svg");
@@ -58,11 +59,11 @@ let bindClickEvents = function() {
             console.log("DEBUG : Prediction string to send is - " + playerPredictionString);
             console.log("DEBUG : Player to send is - " + currentPlayer);
             console.log("DEBUG : Game to send is - " + currentGame);
-            console.log("DEBUG : Week to send is - " + weekChosen);
+            console.log("DEBUG : Week to send is - " + currentWeek);
             if(playerPredictionString.length == totalGames) {
                 $.ajax("/savePrediction", {
                     method: 'POST',
-                    data : { playerPrediction : playerPredictionString, player: currentPlayer, game : currentGame, week: weekChosen},
+                    data : { playerPrediction : playerPredictionString, player: currentPlayer, game : currentGame, week: currentWeek},
                     dataType: 'json',
                     success: function (result, status, req) {
                         console.log("DEBUG : result-button.click : Returned from saving prediction successfully - " + JSON.stringify(result));

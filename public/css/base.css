@@ -13,6 +13,10 @@ body.nfl {
 	display: none;
 }
 
+.font-10 {
+	font-size: 10px;
+}
+
 /*****************************/
 /********* header ************/
 /*****************************/
@@ -148,7 +152,7 @@ div.fixture-content-block {
 }
 
 /*****************************/
-/****** predition summary page *********/
+/****** prediction summary page *********/
 /*****************************/
 
 .team-badge-small {
@@ -203,7 +207,9 @@ td.prediction-table-at.HPick, td.prediction-table-at.RPick, td.home-col.RPick, t
 	margin-bottom: 2rem;
 }
 
-
+.row.main-content-predictions {
+	max-width: 50%;
+}
 
 .base-color-text {
 	color: darkblue
@@ -238,10 +244,13 @@ td.prediction-table-at.HPick, td.prediction-table-at.RPick, td.home-col.RPick, t
 	background-color: lightblue;
 }
 
-.table-header {
+.table-header th, #row-footer td {
 	border: 1px solid black;
 	background-color: #0a0a0a;
 	color: whitesmoke;
+	border-left: 2px solid white;
+	font-size: 2rem;
+	font-weight: bold;
 }
 
 .table-body, td {
@@ -255,5 +264,28 @@ th {
 
 .text-col {
 	font-weight: 400;
-	font-size: 48px;
+	font-size: 100%;
 }
+
+.winner {
+	background-color: palegoldenrod;
+	border: 4px solid crimson;
+}
+
+.tick {
+	position: absolute;
+	bottom: 0.5rem;
+	right: 0.5rem;
+	width: 15%;
+	height: 40%;
+}
+
+.player-col {
+	position: relative;
+}
+
+.table-header th.star {
+	background-color: yellow;
+	color: darkred;
+}
+

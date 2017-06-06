@@ -1,5 +1,0 @@
-{
-	"host" : "http://localhost:3000",
-	"dbURI" : "mongodb://localhost:27017/nflpredictor",
-	"sessionSecret" : "gofalcons"
-}

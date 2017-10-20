@@ -4,17 +4,6 @@ const router = require('express').Router();
 const db = require('../db');
 const http = require('http');
 
-var nflCurrentInfo = {};
-
-var gameState = {
-	name: "",
-	totalGames: 0,
-	nextGame: 1,
-	gameIndex: 0,
-	week: 1,
-	fixtures: null
-};
-
 
 let _registerRoutes = (routes, method) => {
 	for (let key in routes) {
@@ -36,7 +25,6 @@ let route = routes => {
 	_registerRoutes(routes);
 	return router;
 }
-
 
 let findById = id => {
 	return new Promise((resolve, reject) => {
@@ -60,7 +48,7 @@ let findByName = (name, type) => {
 				} else {
 					resolve(result);
 				}
-			});	
+			});
 		} else if (type == 'player'){
 			db.playerModel.findOne({name:name}, (error, result) => {
 				if (error) {
@@ -74,21 +62,8 @@ let findByName = (name, type) => {
 		} else {
 			reject(error);
 		}
-		
+
 	});
-}
-
-let resetGame = () => {
-	gameState = {
-		name: "",
-		totalGames: 0,
-		nextGame: 1,
-		gameIndex: 0,
-		week: 1,
-		fixtures: null
-	}
-
-	nflCurrentInfo = {};
 }
 
 let isNameValid = (name, type) => {
@@ -105,11 +80,10 @@ let isNameValid = (name, type) => {
 			console.log("ERROR : Error encountered whilst searching db for " + name + " : " + err);
 			reject(err);
 		});
-	}); 
+	});
 }
 
 let createNewGame = request => {
-	gameState.name = request.query.gamename;
 	console.log("DEBUG : Helpers index.js : Request query passed in - " + JSON.stringify(request.query));
 	console.log("INFO : Attempting to create new game on DB");
 	var playerName = request.query.playername == "" ? request.query.oldplayer : request.query.playername;
@@ -120,7 +94,7 @@ let createNewGame = request => {
 			admin: playerName,
 			status: 'open',
 			playerCount: '1',
-			week: "Current week",
+			week: request.query.week,
 			season: request.query.season,
 			players : [{name: playerName, prediction: ""}]
 		});
@@ -171,22 +145,6 @@ let addPlayerToGame = request => {
 			reject(err);
 		});
 	});
-}
-
-let setGameWeekAndSeason = (week, season) => {
-    gameState.week = week;
-    gameState.season = season;
-
-    return new Promise((resolve, reject) => {
-        db.gameModel.update({name: gameState.name},{season: season, week: week}, (error, affected) => {
-            if (error) {
-                reject(error);
-            } else {
-                console.log("INFO : Successfully updated game with season and week - Season : " + season + ", Week : " + week );
-                resolve(affected);
-            }
-        });
-    });
 }
 
 let createNewPlayer = playername => {
@@ -242,10 +200,8 @@ let getInfo = () => {
             res.on('end', function () {
                 var response = JSON.parse(body);
                 console.log("DEBUG : Info data returned - " + response);
-                nflCurrentInfo = response;
-                resolve(nflCurrentInfo);
+                resolve(response);
             }).on('error', (e) => {
-                resetGame();
                 console.log(`ERROR : Error whilst retrieving nfl info data : ${e.message}`);
                 reject(e);
             });
@@ -297,67 +253,16 @@ let getGames = (playername, inGame) => {
 	});
 }
 
-let getGameStateFixtures = () => {
-	return gameState.fixtures;
-}
-
-let getTotalFixtures = () => {
-    return gameState.totalGames;
-}
-
-let getSeason = () => {
-    return gameState.season;
-}
-
-let getFixtures = (week, season) => {
-	var body = '';
-	gameState.nextGame = 1;
-	console.log("INFO : About to retrieve fixture data for selected week : " + week);
-
-	return new Promise((resolve, reject) => {
-		var url = "http://api.suredbits.com/nfl/v0/games";
-		if(week !== "Current week") {
-            url = "http://api.suredbits.com/nfl/v0/games/" + season + "/" + week;
-        }
-		console.log("INFO : Retrieving fixtures from : " + url);
-//		var options = {
-//			host: "internet-proxy-bov.group.net",
-//			port: 81,
-//			path: url
-//		}
-
-		http.get(url, (res) => {
-			res.on('data', function (chunk) {
-				body += chunk;
-			});
-
-			res.on('end', function () {
-				var fixtureResponse = JSON.parse(body);
-				console.log("DEBUG : " + this.name + " :Fixture data returned - " + fixtureResponse);
-				console.log("INFO : + " + this.name + " : There were " + fixtureResponse.length + " games returned in response for week " + gameState.week);
-				gameState.fixtures = fixtureResponse;
-				gameState.totalGames = fixtureResponse.length;
-				console.log("INFO : calling helper function getNextGame() to return first fixture")
-				resolve(getNextGame()); 
-			}).on('error', (e) => {
-				resetGame();
-				console.log(`ERROR : Error whilst retrieving fixture data : ${e.message}`);
-				reject(e);
-			});
-		});
-	});
-}
-
 let getAllFixtures = (week, season) => {
 	var body = '';
-	gameState.nextGame = 1;
-	console.log("INFO : About to retrieve fixture data for selected season - " + season + " and week - " + week);
-
 	return new Promise((resolve, reject) => {
 		var url = "http://api.suredbits.com/nfl/v0/games";
-		if(week !== "Current week") {
-            url = "http://api.suredbits.com/nfl/v0/games/" + season + "/" + week;
-        }
+		if(week == "current") {
+			console.log("INFO : About to retrieve fixture data for selected season - " + season + " and week - " + week);
+		} else {
+				console.log("INFO : About to retrieve fixture data for selected season - " + season + " and week - " + week);
+				url = "http://api.suredbits.com/nfl/v0/games/" + season + "/" + week;
+    }
 		console.log("INFO : Retrieving fixtures from : " + url);
 //		var options = {
 //			host: "internet-proxy-bov.group.net",
@@ -385,50 +290,17 @@ let getAllFixtures = (week, season) => {
 	});
 }
 
-let getNextGame = () => {
-	var nextGame = {
-		homeTeam : null,
-		awayTeam : null,
-		week: gameState.week,
-		game: '1',
-		totalFixtures: gameState.totalGames
-	};
-	
-	console.log("INFO : Helpers.index.js.getNextGame() : About to retrieve the next game from gameState fixture model, game number of the next game is " + gameState.nextGame);
-	console.log("INFO : Helpers.index.js.getNextGame() : Retrieving game from index " + gameState.gameIndex);
-	nextGame.homeTeam = gameState.fixtures[gameState.gameIndex].homeTeam.team;
-	nextGame.awayTeam = gameState.fixtures[gameState.gameIndex].awayTeam.team;
-	nextGame.game = gameState.nextGame;
-	console.log("DEBUG : Helpers.index.js.getNextGame() : Next game to be returned to router : " + JSON.stringify(nextGame));
-	incrementGame();
-	return nextGame;
-}
-
-function incrementGame(){
-	console.log("INFO : Incrementing game state");
-	gameState.nextGame++;
-	gameState.gameIndex++;
-}
-
-
 module.exports = {
 	route,
 	findById,
 	findByName,
-	getFixtures,
-	getNextGame,
 	createNewGame,
 	createNewPlayer,
 	isNameValid,
 	getPlayers,
 	getGames,
 	addPlayerToGame,
-	getGameStateFixtures,
-	resetGame,
-    setGameWeekAndSeason,
 	getInfo,
 	updatePrediction,
-    getAllFixtures,
-	getTotalFixtures,
-	getSeason
+  getAllFixtures
 }

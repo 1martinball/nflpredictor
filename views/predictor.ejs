@@ -10,7 +10,6 @@
 	<script src="js/nfl-init.js"></script>
 	<script type="text/javascript">
 		season = <%= season %>;
-		currentWeek = <%= week %>;
 	</script>
 </head>
 
@@ -22,47 +21,9 @@
 				<img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
 				<span class="heading-text"><%=season%> Season</span>
 				<img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
-                <% if(newGame) { %>
-				<div class="row season-week-container">
-					<div class="small-centered small-6">
-						<select id="season">
-							<option selected disabled>Select season....</option>
-							<option><%=season%></option>
-							<option><%=season-1%></option>
-							<option><%=season-2%></option>
-							<option><%=season-3%></option>
-							<option><%=season-4%></option>
-							<option><%=season-5%></option>
-							<option><%=season-6%></option>
-							<option><%=season-7%></option>
-						</select>
-					</div>
-					<div class="small-centered small-6">
-						<select id="week">
-							<option selected disabled>Select game week....</option>
-							<option>Current week</option>
-							<option>1</option>
-							<option>2</option>
-							<option>3</option>
-							<option>4</option>
-							<option>5</option>
-							<option>6</option>
-							<option>7</option>
-							<option>8</option>
-							<option>9</option>
-							<option>10</option>
-							<option>11</option>
-							<option>12</option>
-							<option>14</option>
-							<option>15</option>
-							<option>16</option>
-							<option>17</option>
-						</select>
-					</div>
-				</div>
-                <% } %>
+				<button id="startPredictionButton" class="start-button std-button">Start</button>
 			</div>
-			
+
 			<div class="fixture-row-container hide">
 				<p class="season-week-banner"><span class="season-number">Season <%=season%></span> - <span class="week-number">Week <%=week%></span></p>
 				<p class="game-name-heading">Playing Game - <span id="game-name-id"><%=game%></span></p>
@@ -87,5 +48,6 @@
 	<script src="js/jquery-2.1.4.min.js"></script>
 	<script src="bower_components/jquery.redirect/jquery.redirect.js"></script>
 	<script src="js/foundation.js"></script>
+	<script src="js/nfl-global.js"></script>
 	<script src="js/nfl-predictor.js"></script>
 </body>

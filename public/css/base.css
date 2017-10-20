@@ -53,7 +53,7 @@ h3.error {
 	cursor: pointer;
 }
 
-.result-button {
+.result-button, .start-button {
 	width: 75%;
 	margin: auto;
 	margin-top: 2rem;
@@ -288,4 +288,3 @@ th {
 	background-color: yellow;
 	color: darkred;
 }
-

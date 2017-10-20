@@ -11,7 +11,6 @@ module.exports = () => {
 				console.log("INFO : Routing to - Welcome page at GET/");
 				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
 				console.log("INFO : Rendering page : welcome.ejs");
-				h.resetGame();
 				res.render('welcome', {
 					page: "Welcome",
 					error: false,
@@ -118,7 +117,7 @@ module.exports = () => {
 				h.getPlayers().then(players => {
 					console.log("INFO : Helper function getPlayers() returned to router with : " + players);
 					console.log("INFO : Sending players data");
-					res.send(players);	
+					res.send(players);
 				}).catch(err => {
 					console.log("ERROR : Error while attempting to retrieve existing players");
 					console.log(err);
@@ -137,46 +136,6 @@ module.exports = () => {
 					console.log(err);
 				});
 			},
-			'/getFixtures': (req, res, next) => {
-				console.log("INFO : Routing to : Fixture look up with request GET/getFixtures");
-				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
-				console.log("INFO : Calling helper function getFixtures()");
-				h.setGameWeekAndSeason(req.query.week, req.query.season);
-				h.getFixtures(req.query.week, req.query.season).then(teams => {
-					console.log("INFO : Helper function getFixtures() returned to router with : " + JSON.stringify(teams));
-					console.log("INFO : Sending fixture data");
-					res.send({
-						homeTeam: teams.homeTeam,
-						awayTeam: teams.awayTeam,
-						season: '2016',
-						week: teams.week,
-						game: teams.game,
-						totalFixtures: teams.totalFixtures,
-						error: false,
-						fixtures: true
-					});	
-				}).catch(err => {
-					console.log("ERROR : Error while attempting to retrieve fixtures");
-					console.log(err);
-				})
-			},
-			'/getNextGame': (req, res, next) => {
-				console.log("INFO : Routing to : Next game look up with request GET/getNextGame");
-				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
-				console.log("INFO : Calling helper function getNextGame()");
-				var next = h.getNextGame();
-				console.log("INFO : Helper function getNextGame() returned : " + JSON.stringify(next));					
-				console.log("INFO : Sending fixture data");
-				res.send({
-						homeTeam: next.homeTeam,
-						awayTeam: next.awayTeam,
-						season: '2016',
-						week: next.week,
-						game: next.game,
-						error: false,
-						fixtures: true
-					});	
-			},
 			'/viewGame': (req, res, next) => {
 				console.log("INFO : Routing to : View game data and results with request /viewGame");
 				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
@@ -185,23 +144,23 @@ module.exports = () => {
                     player: req.query.player
                 });
 			},
-            '/getAllFixtures': (req, res, next) => {
-                console.log("INFO : Routing to : Fixture look up with request GET/getAllFixtures");
-                console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
-                console.log("INFO : Calling helper function getAllFixtures()");
-                h.getAllFixtures(req.query.week, req.query.season).then(fixtures => {
-                    console.log("INFO : Helper function getAllFixtures() returned to router with : " + JSON.stringify(fixtures));
-                    console.log("INFO : Sending all fixture data");
-                    res.send({
-                        totalFixtures: fixtures.totalFixtures,
-                        error: false,
-                        fixtures: fixtures.fixtures
-                    });
-                }).catch(err => {
-                    console.log("ERROR : Error while attempting to retrieve fixtures");
-                    console.log(err);
-                })
-            }
+        '/getAllFixtures': (req, res, next) => {
+            console.log("INFO : Routing to : Fixture look up with request GET/getAllFixtures");
+            console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
+            console.log("INFO : Calling helper function getAllFixtures()");
+            h.getAllFixtures(req.query.week, req.query.season).then(fixtures => {
+                console.log("INFO : Helper function getAllFixtures() returned to router with : " + JSON.stringify(fixtures));
+                console.log("INFO : Sending all fixture data");
+                res.send({
+                    totalFixtures: fixtures.totalFixtures,
+                    error: false,
+                    fixtures: fixtures.fixtures
+                });
+            }).catch(err => {
+                console.log("ERROR : Error while attempting to retrieve fixtures");
+                console.log(err);
+            })
+        }
 		},
 		'post': {
 			'/addPlayer' : (req, res, next) => {
@@ -225,17 +184,13 @@ module.exports = () => {
 					}
 				}).catch(name => {
 					console.log("INFO : Problem found when checking if " + name + " is valid");
-					h.resetGame();
 					res.send("That player already exists. Please try again");
-				}); 
+				});
 			},
 			'/savePrediction' : (req, res, next) => {
 				console.log("INFO : routerjs POST/savePrediction : Routed to - POST/savePrediction");
 				console.log("INFO : routerjs POST/savePrediction : POST request with parameters : " + JSON.stringify(req.body));
 				console.log("INFO : routerjs POST/savePrediction : About to update the prediction with - " + req.body.playerPrediction);
-				var fixtures = h.getGameStateFixtures();
-				var totalGames = h.getTotalFixtures();
-				var season = h.getSeason();
 				h.updatePrediction(req).then(recordsChanged => {
 					console.log("INFO : routerjs POST/savePrediction : Successfully updated player prediction - " + recordsChanged + " record amended");
 					res.send({
@@ -244,9 +199,6 @@ module.exports = () => {
 						week: req.body.week,
 						player: req.body.player,
 						game: req.body.game,
-						totalGames: totalGames,
-						season: season,
-						fixtures: fixtures,
 						recordsUpdated: recordsChanged
 					});
 				}).catch(err => {
@@ -267,9 +219,6 @@ module.exports = () => {
 					week: req.body.week,
 					player: req.body.player,
 					game: req.body.game,
-					totalGames: req.body.totalGames,
-					season: req.body.season,
-					fixtures: req.body.fixtures
 				});
 			}
 		},

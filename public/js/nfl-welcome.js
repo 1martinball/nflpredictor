@@ -5,7 +5,6 @@
 //////////// Welcome Page Actions ///////////////////////
 /////////////////////////////////////////////////////////
 
-resetGame();
 populateBaseGameInfo();
 
 let bindClickEvents = function(){
@@ -70,12 +69,12 @@ let bindChangeEvents = function(){
 
     $('#selectGame').change(function(){
         currentGame = $(this).val();
-        currentWeek = existingGamesList.find(function(game){
-            return game.name === currentGame;
-        }).week;
-        season = existingGamesList.find(function(game){
-            return game.name === currentGame;
-        }).season;
+        // currentWeek = existingGamesList.find(function(game){
+        //     return game.name === currentGame;
+        // }).week;
+        // season = existingGamesList.find(function(game){
+        //     return game.name === currentGame;
+        // }).season;
         $('#gamename').val("");
         $('.error').html("");
     });
@@ -86,11 +85,11 @@ let bindSubmitEvent = function(){
     $('#welcomeForm').submit(function(e){
         var inputSeason = $("<input>")
             .attr("type", "hidden")
-            .attr("name", "season").val(season);
+            .attr("name", "season").val(currentNflGameInfo.currentNflSeason);
 
         var inputWeek = $("<input>")
             .attr("type", "hidden")
-            .attr("name", "week").val(currentWeek);
+            .attr("name", "week").val(currentNflGameInfo.currentNflWeek);
 
         $('#welcomeForm').append($(inputSeason));
         $('#welcomeForm').append($(inputWeek));
@@ -116,4 +115,3 @@ $(document).ready(function () {
     bindSubmitEvent();
 
 });
-

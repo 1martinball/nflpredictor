@@ -11,13 +11,7 @@
         <script src="js/foundation.js"></script>
         <script src="js/nfl-global.js"></script>
         <script src="js/nfl-summary.js"></script>
-        <script type="text/javascript">
-            var response = <%- JSON.stringify(fixtures) %>;
-            if (response) {
-                predictionSummaryFixtures = JSON.parse(response);
-            }
 
-        </script>
     </head>
 
 <body class="nfl">
@@ -26,7 +20,7 @@
 			<div class="text-center page-title">
                 <h2>Player Name : <span id="summaryPlayer"><%=player%></span></h2>
 				<img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
-				<span class="heading-text">Predictions for <%=season%> Season - Week <%=week%></span>
+				<span class="heading-text">Predictions for Season <span id="season-title"></span> - Week <span id="week-title"></span></span>
 				<img class="icon-small-title" type="image/svg+xml" src="../images/Nfl_flat.svg" />
 			</div>
 			<form id="summaryForm" action="/">
@@ -43,7 +37,7 @@
                             <th></th>
                             <th>Home Team</th>
                         </tr>
-                        <% for(var i = 0; i < totalGames; i++){ %>
+                        <% for(var i = 0; i < prediction.length; i++){ %>
                         <tr>
                             <td id="R-<%= i %>" class="road-col small-3  <%= prediction[i] %>Pick">
                                 <img class="team-badge-small away<%= i %>" type="image/svg+xml"

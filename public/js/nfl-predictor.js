@@ -7,22 +7,17 @@
 
 populateBaseGameInfo();
 
-let bindChangeEvents = function() {
-
-    $("#week").change(function () {
-        $(".fixture-row-container").removeClass('hide');
-        $(".fixture-row-container").slideDown(300);
-        console.log("INFO : #week.change - About to do ajax call to retrieve fixtures");
-        currentWeek = $('#week').find(":selected").text();
-        season = $('#season').find(":selected").text();
-        console.log("DEBUG : Week Chosen = " + currentWeek);
-        console.log("DEBUG : Season = " + season);
-        getFixturesService(currentWeek);
-    });
-}
-
-
 let bindClickEvents = function() {
+
+    $(".start-button").click(function () {
+        $('.page-title').slideUp(500);
+        //$('.page-title').addClass('hide');
+        $(".fixture-row-container").removeClass('hide');
+        $(".fixture-row-container").slideDown(500);
+        $('span.js-fixtures-remaining').html(fixturesLeftToPredict);
+        console.log("INFO : #start - About to do ajax call to retrieve fixtures");
+        getAllFixturesForCurrentWeek(false);
+    });
 
     $(".result-button").click(function () {
         if ($(this).hasClass('home')) {
@@ -36,22 +31,10 @@ let bindClickEvents = function() {
             playerPredictionString = playerPredictionString + "T";
         }
         if(fixturesLeftToPredict > 1){
-            $.ajax("/getNextGame", {
-                method: 'GET',
-                success: function (result, status, req) {
-                    console.log("INFO : result-button.click : GET/getNextGame returned successfully - " + JSON.stringify(result));
-                    homeTeam = result.homeTeam;
-                    awayTeam = result.awayTeam;
-                    currentWeek = result.week;
-                    fixturesLeftToPredict--;
-                    $('span.js-fixtures-remaining').html(fixturesLeftToPredict);
-                    $('.team-badge.home').attr("src", "../images/teams/" + result.homeTeam + "_logo.svg");
-                    $('.team-badge.away').attr("src", "../images/teams/" + result.awayTeam + "_logo.svg");
-                    $('p.game-number').html("Game " + result.game);
-                    $('fixture-row-container').removeClass('hide');
-                    $('select#week').addClass('hide');
-                }
-            });
+          fixturesLeftToPredict--;
+          var index = totalGames - fixturesLeftToPredict;
+          setTeamBadges(resolveNextTeam(true, index), resolveNextTeam(false, index), index);
+          $('span.js-fixtures-remaining').html(fixturesLeftToPredict);
         } else {
             currentPlayer = $('#player-name-id').text();
             currentGame = $('#game-name-id').text();
@@ -63,13 +46,13 @@ let bindClickEvents = function() {
             if(playerPredictionString.length == totalGames) {
                 $.ajax("/savePrediction", {
                     method: 'POST',
-                    data : { playerPrediction : playerPredictionString, player: currentPlayer, game : currentGame, week: currentWeek},
+                    data : { playerPrediction : playerPredictionString, player: currentPlayer, game : currentGame},
                     dataType: 'json',
                     success: function (result, status, req) {
                         console.log("DEBUG : result-button.click : Returned from saving prediction successfully - " + JSON.stringify(result));
-                        console.log("DEBUG : result-button.click :  - " + JSON.stringify(result.fixtures[0].homeTeam));
+                        // console.log("DEBUG : result-button.click :  - " + JSON.stringify(result.fixtures[0].homeTeam));
                         console.log("INFO : result-button.click : Redirecting to prediction summary page");
-                        $.redirect(result.url, { prediction: result.prediction, week:result.week, player: result.player, game: result.game, totalGames: result.totalGames, season: result.season, fixtures: JSON.stringify(result.fixtures)});
+                        $.redirect(result.url, { prediction: result.prediction, week:result.week, player: result.player, game: result.game});
                     }
                 });
             } else {
@@ -81,16 +64,12 @@ let bindClickEvents = function() {
     });
 }
 
+let resolveNextTeam = function(isHomeTeam, index) {
+  return isHomeTeam ? allFixtures[index].homeTeam.team : allFixtures[index].awayTeam.team;
+}
+
 
 $(document).ready(function () {
-
     bindClickEvents();
     bindChangeEvents();
-
-    if(!($('.season-week-container').length)) {
-        console.log("INFO : About to call fixtures service for existing game : season - " + season + " : week - " + currentWeek);
-        getFixturesService(currentWeek);
-    }
-
 });
-

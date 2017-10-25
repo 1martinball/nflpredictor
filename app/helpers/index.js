@@ -62,7 +62,33 @@ let findByName = (name, type) => {
 		} else {
 			reject(error);
 		}
+	});
+}
 
+let deleteRecord = (name, type) => {
+	return new Promise((resolve, reject) => {
+		if(type == 'game') {
+			db.gameModel.findOneAndDelete({name:name}, (error, result) => {
+				if (error) {
+					console.log("DBError - game lookup by name failed");
+					reject(error);
+				} else {
+					resolve(result);
+				}
+			});
+		} else if (type == 'player'){
+			db.playerModel.findOneAndDelete({name:name}, (error, result) => {
+				if (error) {
+					console.log("DBError - player lookup by name failed");
+					reject(error);
+				} else {
+					console.log("Resolving " + result);
+					resolve(result);
+				}
+			});
+		} else {
+			reject(error);
+		}
 	});
 }
 
@@ -136,6 +162,48 @@ let addPlayerToGame = request => {
 							reject(err);
 						} else {
 							console.log("INFO : Player " + playerName + " was added successfully to " + data.name);
+							resolve(playerName);
+						}
+					})
+			}
+		}).catch(err => {
+			console.log("ERROR : Error encountered whilst searching db for " + gameName);
+			reject(err);
+		});
+	});
+}
+
+let removePlayerFromGame = (playerName, gameName) => {
+	console.log("INFO : Attempting to remove player " + request.query.playername + " from " + request.query.game + " on DB");
+	return new Promise((resolve, reject) => {
+		findByName(gameName, 'game').then(result => {
+			var pCount = result.playerCount;
+			var playerArray = result.players;
+			if (playerArray.indexOf((player => { player.name === playerName})) === -1){
+				console.log("ERROR : Player " + playerName + " not found in game " + gameName);
+				reject(new Error("Player " + playerName + " not found in game " + gameName));
+			} else if (pCount < 2){
+				//only one player in game so far, we are removing player, so must remove game too
+				deleteRecord(gameName, 'game').then(result => {
+					resolve(gameName);
+				}).catch(err => {
+					console.log("ERROR : Error encountered whilst removing game record " + gameName);
+					reject(err);
+				});
+			} else {
+				console.log("INFO : Game " + result.name + " found. Now removing player " + playerName);
+				db.gameModel.findByIdAndUpdate(result._id,
+					{
+						"$set": {"playerCount": --pCount},
+						"$pull": {"players": {name: playerName}}
+					},
+					{"multi": false},
+					function(err, data) {
+						if(err){
+							console.log("ERROR: Error returned trying to remove player from existing game - " + result.name);
+							reject(err);
+						} else {
+							console.log("INFO : Player " + playerName + " was removed successfully from " + data.name);
 							resolve(playerName);
 						}
 					})
@@ -282,7 +350,6 @@ let getAllFixtures = (week, season) => {
 				var fixtures = {fixtures: fixtureResponse, totalFixtures: fixtureResponse.length}
 				resolve(fixtures);
 			}).on('error', (e) => {
-				resetGame();
 				console.log(`ERROR : Error whilst retrieving fixture data : ${e.message}`);
 				reject(e);
 			});
@@ -302,5 +369,6 @@ module.exports = {
 	addPlayerToGame,
 	getInfo,
 	updatePrediction,
-  getAllFixtures
+  getAllFixtures,
+	removePlayerFromGame
 }

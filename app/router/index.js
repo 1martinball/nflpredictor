@@ -174,7 +174,6 @@ module.exports = () => {
 							res.send(player.name);
 						}).catch(err => {
 							console.log("ERROR : error returned when creating new player");
-							h.resetGame();
 							res.render('welcome', {
 								page: "Welcome",
 								error: true,

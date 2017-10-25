@@ -63,6 +63,10 @@ let resetGame = function() {
 		existingGamesList = [];
 }
 
+let addPageState = state => {
+	location.hash = state;
+}
+
 let getExistingGameNames = function(elementToAppend, inGame){
 		if(inGame){
 				console.log("INFO : Retrieving existing games for player " + currentPlayer + " to populate results dropdown");
@@ -147,9 +151,4 @@ let startGamePredictionsInitialiser = function(allFixtureResponse){
 	totalGames = allFixtureResponse.totalFixtures;
 	playerPredictionString = "";
 	setTeamBadges(homeTeam, awayTeam, totalGames-fixturesLeftToPredict)
-}
-
-let setTeamBadges = function(homeTeam, awayTeam, index){
-	$('.team-badge.away').attr("src", "../images/teams/"+awayTeam+"_logo.svg");
-	$('.team-badge.home').attr("src", "../images/teams/"+homeTeam+"_logo.svg");
 }

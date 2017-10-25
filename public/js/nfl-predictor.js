@@ -7,6 +7,20 @@
 
 populateBaseGameInfo();
 
+let bindHashChangeEvent = function() {
+  $(window).on('hashchange', function(){
+    if(location.hash > playerPredictionString.length){
+      $(window).history.back();
+    } else if(parseInt(location.hash.replace('#','')) < playerPredictionString.length)  {
+      playerPredictionString = playerPredictionString.substr(0,playerPredictionString.length-1);
+      var index = playerPredictionString.length;
+      fixturesLeftToPredict++;
+      setTeamBadges(resolveNextTeam(true, index), resolveNextTeam(false, index), index);
+      $('span.js-fixtures-remaining').html(fixturesLeftToPredict);
+    }
+  });
+}
+
 let bindClickEvents = function() {
 
     $(".start-button").click(function () {
@@ -35,6 +49,7 @@ let bindClickEvents = function() {
           var index = totalGames - fixturesLeftToPredict;
           setTeamBadges(resolveNextTeam(true, index), resolveNextTeam(false, index), index);
           $('span.js-fixtures-remaining').html(fixturesLeftToPredict);
+          location.hash = playerPredictionString.length;
         } else {
             currentPlayer = $('#player-name-id').text();
             currentGame = $('#game-name-id').text();
@@ -68,8 +83,14 @@ let resolveNextTeam = function(isHomeTeam, index) {
   return isHomeTeam ? allFixtures[index].homeTeam.team : allFixtures[index].awayTeam.team;
 }
 
+let setTeamBadges = function(homeTeam, awayTeam, index){
+	$('.team-badge.away').attr("src", "../images/teams/"+awayTeam+"_logo.svg");
+	$('.team-badge.home').attr("src", "../images/teams/"+homeTeam+"_logo.svg");
+}
+
 
 $(document).ready(function () {
+    location.hash = playerPredictionString.length;
     bindClickEvents();
-    bindChangeEvents();
+    bindHashChangeEvent();
 });

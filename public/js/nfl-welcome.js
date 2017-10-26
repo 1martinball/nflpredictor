@@ -10,8 +10,6 @@ populateBaseGameInfo();
 let bindClickEvents = function(){
 
 		$("#newgame").click(function () {
-				season = currentNflGameInfo.currentNflSeason;
-				currentWeek = "Current week";
 				$('.game-buttons-container').addClass('hide');
 				$(".newgame-info-container").removeClass('hide');
 				$(".newgame-info-container").addClass('show');

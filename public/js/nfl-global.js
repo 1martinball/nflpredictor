@@ -10,12 +10,10 @@ var currentWeek = "";
 var playerPredictionString = "";
 var season = "";
 var existingGamesList = [];
-var currentNflGameInfo = {
-				currentNflSeason : "",
-				currentNflWeek: "",
-				currentNflSeasonType: "",
-		}
+
 var allFixtures = null;
+sessionStorage.isDebug = false;
+
 var teams = {
 		CHI: "Bears",
 		MIN: "Vikings",
@@ -49,18 +47,6 @@ var teams = {
 		JAC: 'Jaguars',
 		LAC: 'Chargers',
 		CIN: 'Bengals'
-}
-
-let resetGame = function() {
-		homeTeam = "No team loaded";
-		awayTeam = "No team loaded";
-		fixturesLeftToPredict = 0;
-		totalGames = 0;
-		playerPredictionString = "";
-		currentPlayer = "";
-		currentGame = "";
-		currentWeek = "";
-		existingGamesList = [];
 }
 
 let addPageState = state => {
@@ -124,15 +110,17 @@ let populateCurrentPlayers = function(){
 		});
 }
 
-let getAllFixturesForCurrentWeek = function(isSummary){
+let getAllFixturesForCurrentWeek = function(isSummary, week, season){
 
 		console.log("INFO: Calling getAllFixture service for current NFL week");
 		$.ajax({
 				url: '/getAllFixtures',
-				data: "week=current&season=" + currentNflGameInfo.currentNflSeason,
+				data: "week=" + week + "&season=" + season,
 				success: function (result, status, req) {
 						console.log("DEBUG : Result returned from GET/getAllFixtures - " + JSON.stringify(result));
 						totalGames = result.totalFixtures;
+
+						result.fixtures = checkFixturesAndSort(result.fixtures);
 
 						if(!isSummary){
 							startGamePredictionsInitialiser(result);
@@ -151,4 +139,50 @@ let startGamePredictionsInitialiser = function(allFixtureResponse){
 	totalGames = allFixtureResponse.totalFixtures;
 	playerPredictionString = "";
 	setTeamBadges(homeTeam, awayTeam, totalGames-fixturesLeftToPredict)
+}
+
+let checkFixturesAndSort = fixtures => {
+	console.log("INFO: Fixtures will now be sorted by day");
+	fixtures.sort((team1,team2) => {
+
+		var gameIndexTeam1 = team1.gsisId.slice(-2);
+		var  gameDayTeam1 = team1.gsisId.substr(-4,2);
+		var gameMonthTeam1 = team1.gsisId.substr(4,2);
+		var gameYearTeam1 = team1.gsisId.substr(0,4);
+
+		var gameIndexTeam2 = team2.gsisId.slice(-2);
+		var  gameDayTeam2 = team2.gsisId.substr(-4,2);
+		var gameMonthTeam2 = team2.gsisId.substr(4,2);
+		var gameYearTeam2 = team2.gsisId.substr(0,4);
+		console.log("DEBUG: Original gsisId team1 = " + team1.gsisId + "; team2 = " + team2.gsisId);
+		console.log("DEBUG: Team1 - gsisId = " + gameYearTeam1 + gameMonthTeam1 + gameDayTeam1 + gameIndexTeam1);
+		console.log("DEBUG: Team1 - gsisId = " + gameYearTeam2 + gameMonthTeam2 + gameDayTeam2 + gameIndexTeam2);
+
+		if(parseInt(gameYearTeam1) === parseInt(gameYearTeam2)){
+			if(parseInt(gameMonthTeam1) === parseInt(gameMonthTeam2)){
+				if(parseInt(gameDayTeam1) === parseInt(gameDayTeam2)){
+					return parseInt(gameIndexTeam1) - parseInt(gameIndexTeam2);
+				} else {
+					return parseInt(gameDayTeam1) - parseInt(gameDayTeam2);
+				}
+			} else {
+				return parseInt(gameMonthTeam1) - parseInt(gameMonthTeam2);
+			}
+		} else {
+			return parseInt(gameYearTeam1) - parseInt(gameYearTeam2);
+		}
+	});
+
+	if(fixtures.every((fixture) => { return !fixture.finished; })) {
+		return fixtures;
+	} else {
+		incrementWeekInSession();
+		return getAllFixturesForCurrentWeek(false, sessionStorage.week, sessionStorage.season);
+	}
+}
+
+let incrementWeekInSession = () => {
+	var week = parseInt(sessionStorage.week);
+	week++;
+	sessionStorage.week = week;
 }

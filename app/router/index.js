@@ -215,7 +215,6 @@ module.exports = () => {
 				res.render('predictionSummary', {
 					page: "Prediction Summary",
 					prediction: req.body.prediction,
-					week: req.body.week,
 					player: req.body.player,
 					game: req.body.game,
 				});

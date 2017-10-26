@@ -324,13 +324,9 @@ let getGames = (playername, inGame) => {
 let getAllFixtures = (week, season) => {
 	var body = '';
 	return new Promise((resolve, reject) => {
-		var url = "http://api.suredbits.com/nfl/v0/games";
-		if(week == "current") {
-			console.log("INFO : About to retrieve fixture data for selected season - " + season + " and week - " + week);
-		} else {
-				console.log("INFO : About to retrieve fixture data for selected season - " + season + " and week - " + week);
-				url = "http://api.suredbits.com/nfl/v0/games/" + season + "/" + week;
-    }
+		console.log("INFO : About to retrieve fixture data for season - " + season + " and week - " + week);
+		var url = "http://api.suredbits.com/nfl/v0/games/" + season + "/" + week;
+
 		console.log("INFO : Retrieving fixtures from : " + url);
 //		var options = {
 //			host: "internet-proxy-bov.group.net",
@@ -370,5 +366,6 @@ module.exports = {
 	getInfo,
 	updatePrediction,
   getAllFixtures,
-	removePlayerFromGame
+	removePlayerFromGame,
+	deleteRecord
 }

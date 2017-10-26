@@ -5,7 +5,6 @@
 /////////////////////////////////////////////////////////
 
 
-populateBaseGameInfo();
 
 let bindHashChangeEvent = function() {
   $(window).on('hashchange', function(){
@@ -30,7 +29,7 @@ let bindClickEvents = function() {
         $(".fixture-row-container").slideDown(500);
         $('span.js-fixtures-remaining').html(fixturesLeftToPredict);
         console.log("INFO : #start - About to do ajax call to retrieve fixtures");
-        getAllFixturesForCurrentWeek(false);
+        getAllFixturesForCurrentWeek(false, sessionStorage.week, sessionStorage.season);
     });
 
     $(".result-button").click(function () {
@@ -67,12 +66,11 @@ let bindClickEvents = function() {
                         console.log("DEBUG : result-button.click : Returned from saving prediction successfully - " + JSON.stringify(result));
                         // console.log("DEBUG : result-button.click :  - " + JSON.stringify(result.fixtures[0].homeTeam));
                         console.log("INFO : result-button.click : Redirecting to prediction summary page");
-                        $.redirect(result.url, { prediction: result.prediction, week:result.week, player: result.player, game: result.game});
+                        $.redirect(result.url, { prediction: result.prediction, player: result.player, game: result.game});
                     }
                 });
             } else {
                 console.log("ERROR : result-button.click : There was a problem with your predictions......resetting game");
-                resetGame();
                 window.location.replace('http://localhost:3000');
             }
         }
@@ -91,6 +89,10 @@ let setTeamBadges = function(homeTeam, awayTeam, index){
 
 $(document).ready(function () {
     location.hash = playerPredictionString.length;
+    $('span.heading-text').text(sessionStorage.season + " Season");
+    $('span.season-number').text(sessionStorage.season + " Season");
+    $('span.week-number').text("Week " + sessionStorage.week);
+
     bindClickEvents();
     bindHashChangeEvent();
 });

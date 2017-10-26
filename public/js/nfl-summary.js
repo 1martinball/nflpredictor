@@ -4,7 +4,6 @@
 //////////// Prediction Summary Page Actions ///////////////////////
 /////////////////////////////////////////////////////////
 
-
 var predictionSummaryFixtures = null;
 
 let bindClickEvents = function() {
@@ -61,7 +60,9 @@ let populatePredictions = function(predictionSummaryFixtures){
 }
 
 $(document).ready(function () {
+	$('#season-title').text(sessionStorage.season);
+	$('#week-title').text(sessionStorage.week);
 		bindClickEvents();
 		bindSubmitEvent();
-		getAllFixturesForCurrentWeek(true);
+		getAllFixturesForCurrentWeek(true, sessionStorage.week, sessionStorage.season);
 });

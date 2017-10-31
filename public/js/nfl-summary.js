@@ -64,5 +64,5 @@ $(document).ready(function () {
 	$('#week-title').text(sessionStorage.week);
 		bindClickEvents();
 		bindSubmitEvent();
-		getAllFixturesForCurrentWeek(true, sessionStorage.week, sessionStorage.season);
+		getAllFixturesForCurrentWeek("summary", sessionStorage.week, sessionStorage.season);
 });

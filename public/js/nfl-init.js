@@ -2,7 +2,8 @@
 
 
 let populateBaseGameInfo = function() {
-  if(sessionStorage.isDebug){
+  console.log(sessionStorage.isDebug);
+  if(sessionStorage.isDebug === "true"){
     sessionStorage.season = prompt("season?");
     sessionStorage.week = prompt("week?");
     sessionStorage.seasonType = "Regular";
@@ -17,8 +18,8 @@ let populateBaseGameInfo = function() {
             sessionStorage.week = numericStringWeek;
             sessionStorage.season = result.seasonYear;
             sessionStorage.seasonType = result.seasonType;
-            console.log("DEBUG : currentNflGameInfo resolved to - " + JSON.stringify(currentNflGameInfo));
             console.log("Saving game info to session");
+            getAllFixturesForCurrentWeek("info", sessionStorage.week, sessionStorage.season);
         }
     });
   }

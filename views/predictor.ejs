@@ -7,10 +7,6 @@
 	<link rel="stylesheet" href="/css/base.css">
 	<link rel="stylesheet" href="/css/foundation.css">
 	<script src="js/nfl-global.js"></script>
-	<script src="js/nfl-init.js"></script>
-	<script type="text/javascript">
-		season = <%= season %>;
-	</script>
 </head>
 
 <body class="nfl">
@@ -25,20 +21,25 @@
 			</div>
 
 			<div class="fixture-row-container hide">
+
+
 				<p class="season-week-banner"><span class="season-number"></span> - <span class="week-number">></span></p>
+
+
 				<p class="game-name-heading">Playing Game - <span id="game-name-id"><%=game%></span></p>
 				<p class="sub-heading-description"><span id="player-name-id"><%=player%></span> make your predictions</p>
+				<form id="predictionForm" method="GET" action="predictionSummary"></form>
+
 				<p class="fixture-count small-centered">Games remaining  - <span class="js-fixtures-remaining">0</span></p>
 				<div class="fixture-content-block left">
-					<img class="team-badge away" type="image/svg+xml" src="public/images/teams/<%=awayTeam%>_logo.svg" />
+					<img class="team-badge away" type="image/svg+xml" src="public/images/teams/_logo.svg" />
 					<button id="resultBtnRoad" class="result-button std-button away">Road Win</button>
 				</div>
 				<div class="fixture-content-block middle">
 					<span class="fixture-row-text">@</span>
-					<button id="resultBtnTie" class="result-button std-button">Tie</button>
 				</div>
 				<div class="fixture-content-block right">
-					<img class="team-badge home" type="image/svg+xml" src="public/images/teams/<%=homeTeam%>_logo.svg" />
+					<img class="team-badge home" type="image/svg+xml" src="public/images/teams/_logo.svg" />
 					<button id="resultBtnHome" class="result-button std-button home">Home Win</button>
 				</div>
 			</div>
@@ -48,6 +49,5 @@
 	<script src="js/jquery-2.1.4.min.js"></script>
 	<script src="bower_components/jquery.redirect/jquery.redirect.js"></script>
 	<script src="js/foundation.js"></script>
-	<script src="js/nfl-global.js"></script>
 	<script src="js/nfl-predictor.js"></script>
 </body>

@@ -18,17 +18,17 @@ module.exports = () => {
 				});
 			},
 			'/getInfo': (req, res, next) => {
-                console.log("INFO : Routing to : Nfl current info retrieval with request GET/getInfo");
-                console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
-                console.log("INFO : Calling helper function getInfo()");
-                h.getInfo().then(info => {
-                    console.log("INFO : Helper function getInfo() returned to router with : " + JSON.stringify(info));
-                    console.log("INFO : Sending info data");
-                    res.send(info);
-                }).catch(err => {
-                    console.log("ERROR : Error while attempting to retrieve nfl current info");
-                    console.log(err);
-                });
+				console.log("INFO : Routing to : Nfl current info retrieval with request GET/getInfo");
+				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
+				console.log("INFO : Calling helper function getInfo()");
+				h.getInfo().then(info => {
+					console.log("INFO : Helper function getInfo() returned to router with : " + JSON.stringify(info));
+					console.log("INFO : Sending info data");
+					res.send(info);
+				}).catch(err => {
+					console.log("ERROR : Error while attempting to retrieve nfl current info");
+					console.log(err);
+				});
 			},
 			'/redzone': (req, res, next) => {
 				console.log("INFO : Routing to - Predictor at GET/redzone");
@@ -36,79 +36,77 @@ module.exports = () => {
 				console.log("INFO : Rendering page : predictor.ejs");
 				console.log("INFO : Checking DB for game names")
 				h.isNameValid(req.query.gamename, 'game').then(valid => {
-					if(valid) {
+					if (valid) {
 						console.log("INFO : Game validation successful - Saving new game and player data");
 						h.createNewGame(req).then(game => {
 							console.log("DEBUG : About to render Predictor page with data : " + JSON.stringify(game));
 							res.render('predictor', {
 								page: "NFL Predictor | Redzone",
-								season: req.query.season,
 								error: false,
 								errorMessage: "",
-								week: game.week,
-								player: game.players[0].name,
+								player: game.admin,
 								game: game.name,
-								newGame: true,
-								fixtures: false,
-								awayTeam: null,
-								homeTeam: null
 							});
-						}).catch( err => {
-							console.log("ERROR : error returned when creating new game : " + err );
+						}).catch(err => {
+							console.log("ERROR : error returned when creating new game : " + err);
 							res.render('welcome', {
 								page: "Welcome",
 								error: true,
-								errorMessage : "An error returned when creating new game. Please try again"
+								errorMessage: "An error returned when creating new game. Please try again"
 							});
 						});
 					}
 				}).catch(err => {
-					if(err instanceof Error){
+					if (err instanceof Error) {
 						console.log("ERROR : error returned when checking if game is valid : " + err);
 						res.render('welcome', {
 							page: "Welcome",
 							error: true,
-							errorMessage : "An error occurred during game creation. Please try again"
+							errorMessage: "An error occurred during game creation. Please try again"
 						});
-					} else {
+					}
+					else {
 						console.log("INFO : Game " + err + " already exists on the DB");
 						res.render('welcome', {
 							page: "Welcome",
 							error: true,
-							errorMessage : "Game " + err + " already exists. Please try again with a different game name"
+							errorMessage: "Game " + err + " already exists. Please try again with a different game name"
 						});
 					}
 
 				});
 			},
 			'/redzoneExistingGame': (req, res, next) => {
+
 				console.log("INFO : Routing to - Predictor at GET/redzoneExistingGame");
 				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
+				var player = req.query.playername == "" ? req.query.oldplayer : req.query.playername;
+				console.log("DEBUG : Player name resolved to - " + player);
 				console.log("INFO : Rendering page : predictor.ejs");
-				console.log("INFO : Existing game validation not required - Need to update game with player data");
-				h.addPlayerToGame(req).then(player => {
-					console.log("INFO : Router - index.js : Player " + player + " added successfully to game " + req.query.oldGame);
-					res.render('predictor', {
-						page: "NFL Predictor | Redzone",
-						season: req.query.season,
-						player: player,
-						game: req.query.oldGame,
-						error: false,
-						errorMessage: "",
-						week: req.query.week,
-						newGame: false,
-						fixtures: false,
-						awayTeam: null,
-						homeTeam: null
-					});
-				}).catch( err => {
-					console.log("ERROR : Error returned when adding player to game - " + err);
-					res.render('welcome', {
-						page: "Welcome",
-						error: true,
-						errorMessage : err.message
-					});
+				console.log("INFO : Existing game validation not required");
+				// h.addPlayerToGame(req).then(player => {
+				// console.log("INFO : Router - index.js : Player " + player + " added successfully to game " + req.query.oldGame);
+				res.render('predictor', {
+					page: "NFL Predictor | Redzone",
+					season: req.query.season,
+					player: player,
+					game: req.query.oldGame,
+					error: false,
+					errorMessage: "",
+					week: req.query.week,
+					newGame: false,
+					fixtures: false,
+					awayTeam: null,
+					homeTeam: null
 				});
+				// }).catch( err => {
+				// 	console.log("ERROR : Error returned when adding player to game - " + err);
+				// 	res.render('welcome', {
+				// 		page: "Welcome",
+				// 		error: true,
+				// 		errorMessage : err.message
+				// 	});
+				// });
 			},
 			'/getPlayers': (req, res, next) => {
 				console.log("INFO : Routing to : Player look up with request GET/getPlayers");
@@ -139,36 +137,46 @@ module.exports = () => {
 			'/viewGame': (req, res, next) => {
 				console.log("INFO : Routing to : View game data and results with request /viewGame");
 				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
-                res.render('viewGame', {
-                    page: "Game And Result Viewer",
-                    player: req.query.player
-                });
+				res.render('viewGame', {
+					page: "Game And Result Viewer",
+					player: req.query.player
+				});
 			},
-        '/getAllFixtures': (req, res, next) => {
-            console.log("INFO : Routing to : Fixture look up with request GET/getAllFixtures");
-            console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
-            console.log("INFO : Calling helper function getAllFixtures()");
-            h.getAllFixtures(req.query.week, req.query.season).then(fixtures => {
-                console.log("INFO : Helper function getAllFixtures() returned to router with : " + JSON.stringify(fixtures));
-                console.log("INFO : Sending all fixture data");
-                res.send({
-                    totalFixtures: fixtures.totalFixtures,
-                    error: false,
-                    fixtures: fixtures.fixtures
-                });
-            }).catch(err => {
-                console.log("ERROR : Error while attempting to retrieve fixtures");
-                console.log(err);
-            })
-        }
+			'/getAllFixtures': (req, res, next) => {
+				console.log("INFO : Routing to : Fixture look up with request GET/getAllFixtures");
+				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
+				console.log("INFO : Calling helper function getAllFixtures()");
+				h.getAllFixtures(req.query.week, req.query.season).then(fixtures => {
+					console.log("INFO : Helper function getAllFixtures() returned to router with : " + JSON.stringify(fixtures));
+					console.log("INFO : Sending all fixture data");
+					res.send({
+						totalFixtures: fixtures.totalFixtures,
+						error: false,
+						fixtures: fixtures.fixtures
+					});
+				}).catch(err => {
+					console.log("ERROR : Error while attempting to retrieve fixtures");
+					console.log(err);
+				})
+			},
+			'/predictionSummary': (req, res, next) => {
+				console.log("INFO : routerjs POST/predictionSummary : Routed to - POST/predictionSummary");
+				console.log("INFO : GET request with parameters : " + JSON.stringify(req.query));
+				res.render('predictionSummary', {
+					page: "Prediction Summary",
+					prediction: req.query.playerPrediction,
+					player: req.query.player,
+					game: req.query.game,
+				});
+			}
 		},
 		'post': {
-			'/addPlayer' : (req, res, next) => {
+			'/addPlayer': (req, res, next) => {
 				console.log("INFO : Routing to - post/addPlayer");
 				console.log("INFO : POST request with parameters : " + (req.body.playername));
 				console.log("INFO : About to check player name " + req.body.playername + " is available");
 				h.isNameValid(req.body.playername, 'player').then(valid => {
-					if(valid){
+					if (valid) {
 						console.log("INFO : Player validation successful - Saving new player data");
 						h.createNewPlayer(req.body.playername).then(player => {
 							res.send(player.name);
@@ -177,7 +185,7 @@ module.exports = () => {
 							res.render('welcome', {
 								page: "Welcome",
 								error: true,
-								errorMessage : "An error occurred creating new player. Please try again"
+								errorMessage: "An error occurred creating new player. Please try again"
 							});
 						});
 					}
@@ -186,37 +194,34 @@ module.exports = () => {
 					res.send("That player already exists. Please try again");
 				});
 			},
-			'/savePrediction' : (req, res, next) => {
+			'/savePrediction': (req, res, next) => {
 				console.log("INFO : routerjs POST/savePrediction : Routed to - POST/savePrediction");
 				console.log("INFO : routerjs POST/savePrediction : POST request with parameters : " + JSON.stringify(req.body));
 				console.log("INFO : routerjs POST/savePrediction : About to update the prediction with - " + req.body.playerPrediction);
-				h.updatePrediction(req).then(recordsChanged => {
-					console.log("INFO : routerjs POST/savePrediction : Successfully updated player prediction - " + recordsChanged + " record amended");
-					res.send({
-						url: "/predictionSummary",
-						prediction: req.body.playerPrediction,
-						week: req.body.week,
-						player: req.body.player,
-						game: req.body.game,
-						recordsUpdated: recordsChanged
+				h.addPlayerAndPredictionToGame(req).then(player => {
+					console.log("INFO : routerjs POST/savePrediction : Successfully updated player prediction");
+					res.render('welcome', {
+						page: "Welcome",
+						error: false,
+						errorMessage: ""
 					});
 				}).catch(err => {
 					console.log("ERROR : routerjs POST/savePrediction : " + err);
 					res.render('welcome', {
 						page: "Welcome",
 						error: true,
-						errorMessage : "There was an error updating your prediction. Please retry - game has been reset"
+						errorMessage: "There was an error updating your prediction. Please retry - game has been reset"
 					});
 				});
 			},
-			'/predictionSummary' : (req, res, next) => {
-				console.log("INFO : routerjs POST/predictionSummary : Routed to - POST/predictionSummary");
-				console.log("INFO : routerjs POST/predictionSummary : About to send back prediction data for redirect - " + JSON.stringify(req.body.prediction));
-				res.render('predictionSummary', {
-					page: "Prediction Summary",
-					prediction: req.body.prediction,
-					player: req.body.player,
-					game: req.body.game,
+			'/closeGames': (req, res, next) => {
+				console.log("INFO : routerjs POST/closeGames : Routed to - POST/closeGames");
+				console.log("INFO : routerjs POST/closeGames : About to carry out maintenance to change game status to closed for past or in progress games");
+				h.closeGames(req.body.currentWeek).then(gamesClosed => {
+					res.send(gamesClosed);
+				}).catch(err => {
+					console.log(err);
+					console.log("An error occurred whilst carrying out game maintenance");
 				});
 			}
 		},

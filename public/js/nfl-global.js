@@ -137,7 +137,7 @@ let getAllFixturesForCurrentWeek = function(from, week, season) {
 			console.log("DEBUG : Result returned from GET/getAllFixtures - " + JSON.stringify(result));
 			totalGames = result.totalFixtures;
 
-			result.fixtures = checkFixturesAndSort(result.fixtures);
+			result.fixtures = checkFixturesAndSort(result.fixtures, false);
 
 			if (from == "predictor") {
 				startGamePredictionsInitialiser(result);
@@ -166,7 +166,7 @@ let startGamePredictionsInitialiser = function(allFixtureResponse) {
 	setTeamBadges(homeTeam, awayTeam, totalGames - fixturesLeftToPredict)
 }
 
-let checkFixturesAndSort = fixtures => {
+let checkFixturesAndSort = (fixtures, sortOnly) => {
 	console.log("INFO: Fixtures will now be sorted by day");
 	fixtures.sort((fixture1, fixture2) => {
 
@@ -202,7 +202,7 @@ let checkFixturesAndSort = fixtures => {
 	});
 
 
-	if (!hasEarliestFixtureElapsed(fixtures[0])) {
+	if (sortOnly || !hasEarliestFixtureElapsed(fixtures[0])) {
 		return fixtures;
 	}
 	else {

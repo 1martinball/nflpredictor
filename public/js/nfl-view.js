@@ -23,7 +23,8 @@ let fetchResultTableData = function(game, week, season, players) {
 }
 
 let createTable = function(game, players, fixtures, totalgames) {
-	var winningPlayerIndex = 0;
+	var winningPlayerIndex = [];
+	winningPlayerIndex.push(0);
 	players.forEach((player) => {
 		player.gameScore = 0;
 	});
@@ -39,7 +40,7 @@ let createTable = function(game, players, fixtures, totalgames) {
 		$('#R-' + j).append(" : " + awayScore).addClass('text-col');
 		$('#H-' + j).append(homeScore + " : ").addClass('text-col');
 		$('#H-' + j).append("<img class='team-badge-smaller home" + j + "' type='image/svg+xml' src='/images/teams/" + fixtures[j].homeTeam.team + "_logo.svg' />");
-		homeScore == awayScore ? $('#T-' + j).addClass('winner') : homeScore > awayScore ? $('#H-' + j).addClass('winner') : $('#R-' + j).addClass('winner');
+		homeScore == awayScore ? $('#T-' + j).addClass('') : homeScore > awayScore ? $('#H-' + j).addClass('winner') : $('#R-' + j).addClass('winner');
 		if (j == totalGames - 1) {
 			$('#result-table-footer').append("<tr id='row-footer'><td id='R-footer' class='road-col text-center'></td><td id='T-footer' class='text-col text-center'></td><td id='H-footer' class='home-col  text-center'></td></tr>>");
 		}
@@ -61,14 +62,21 @@ let createTable = function(game, players, fixtures, totalgames) {
 			if (j == totalgames - 1) {
 				if (i > 0) {
 					if (players[i].gameScore > players[i - 1].gameScore) {
-						winningPlayerIndex = i;
+						winningPlayerIndex = []
+						winningPlayerIndex.push(i);
+					}
+					else if (players[i].gameScore == players[i - 1].gameScore) {
+						winningPlayerIndex.push(i);
 					}
 				}
 				$("#row-footer").append("<td class='text-center text-col'>" + players[i].gameScore + "</td>");
 			}
 		}
 	}
-	$(".player" + winningPlayerIndex).addClass('star').append("<p class='font-10 text-center'>WINNER</p>");
+	winningPlayerIndex.forEach((winningPlayerIndexValue, index, array) => {
+		$(".player" + winningPlayerIndexValue).addClass('star').append("<p class='font-10 text-center'>WINNER</p>");
+	});
+
 	$('.game-view-table').slideDown('slow');
 	$('.game-view-table').removeClass('hide');
 }
